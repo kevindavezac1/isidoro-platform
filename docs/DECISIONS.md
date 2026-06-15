@@ -56,16 +56,63 @@
 
 ---
 
+### DEC-007 — División de cuenta: `session_id` en `consumptions`
+- **Decisión:** Usar `session_id uuid nullable` en `consumptions` para agrupar filas del mismo grupo de mesa. No se crea tabla `split_consumptions`.
+- **Razonamiento:** Cada cliente tiene su propia fila y gana sus propios puntos. El `session_id` agrupa las filas sin overhead de tabla extra ni JOINs adicionales. Una tabla `split_consumptions` solo aportaría valor si se necesitaran porcentajes variables de split, requerimiento que no existe en la propuesta comercial.
+- **Implicación para Kevin:** Agregar columna `session_id uuid nullable` a `consumptions` en la migración inicial.
+- **Tomada por:** Kevin
+- **Fecha:** 15 de junio de 2026
+
+---
+
+### DEC-008 — QR personal del cliente: token propio en `profiles`
+- **Decisión:** El QR apunta a un campo `qr_token text UNIQUE NOT NULL` en `profiles`, no a `profiles.id`.
+- **Razonamiento:** `profiles.id` está ligado a `auth.users.id` de forma permanente y no se puede revocar. Un `qr_token` independiente puede rotarse si el cliente pierde el QR o sospecha mal uso, sin afectar la identidad del usuario ni requerir una tabla separada.
+- **Implicación para Kevin:** Agregar columna `qr_token text UNIQUE NOT NULL DEFAULT gen_random_uuid()::text` a `profiles`. El endpoint de búsqueda por QR recibe este token, no el UUID de perfil.
+- **Tomada por:** Kevin
+- **Fecha:** 15 de junio de 2026
+
+---
+
+### DEC-009 — Código de canje: numérico de 6 dígitos
+- **Decisión:** Los códigos de canje son numéricos de 6 dígitos (`'000000'` a `'999999'`).
+- **Razonamiento:** Con ventanas de 15 minutos y el volumen de un restaurante, 10^6 combinaciones hacen la colisión prácticamente imposible. Numérico elimina ambigüedad de caracteres (O/0, I/1/l) que ocurre bajo presión de mostrador. El cajero puede leerlo o tipearlo sin error.
+- **Implicación para Kevin:** Agregar constraint `CHECK (code ~ '^[0-9]{6}$')` en tabla `redemptions`.
+- **Tomada por:** Kevin
+- **Fecha:** 15 de junio de 2026
+
+---
+
+### DEC-010 — Ajuste manual de puntos: fila en `points_transactions`
+- **Decisión:** Los ajustes manuales se registran como filas en `points_transactions` con `type = 'manual_adjustment'`. No se crea tabla separada.
+- **Razonamiento:** `points_transactions` es la fuente de verdad del saldo (DEC declarado en DB_SCHEMA.md). Una tabla separada crearía dos fuentes de verdad y requeriría JOINs para calcular cualquier balance. Los FKs `consumption_id` y `redemption_id` ya son nullable — ambos quedan NULL en ajustes manuales.
+- **Implicación para Kevin:** Agregar columna `type text NOT NULL` a `points_transactions` con valores `'consumption' | 'redemption' | 'manual_adjustment' | 'expiry'`. Agregar columna `adjusted_by uuid FK nullable → profiles` para auditoría de quién hizo el ajuste.
+- **Tomada por:** Kevin
+- **Fecha:** 15 de junio de 2026
+
+---
+
+### DEC-011 — Expiración del código de canje: 15 minutos
+- **Decisión:** El código de canje expira 15 minutos después de generado. Se calcula como `now() + interval '15 minutes'` en la Edge Function `initiate-redemption` al crear la fila en `redemptions`.
+- **Razonamiento:** 15 minutos da margen suficiente para que el cliente muestre el código al cajero sin presión, pero limita la ventana de uso indebido si el código es capturado o compartido.
+- **Implicación para Kevin:** La Edge Function debe setear `expires_at = now() + interval '15 minutes'` al insertar en `redemptions`. El proceso de confirmación debe validar `expires_at > now()` antes de proceder.
+- **Tomada por:** Kevin + Fran
+- **Fecha:** 15 de junio de 2026
+
+---
+
+### DEC-012 — Validación de saldo insuficiente en backend
+- **Decisión:** La Edge Function `initiate-redemption` verifica el saldo disponible antes de generar el código. Si el saldo es insuficiente, retorna HTTP 400 con mensaje claro. No se delega esta validación al frontend.
+- **Razonamiento:** Validar solo en el frontend es inseguro — cualquier cliente puede manipular la petición HTTP. El backend es la única capa confiable para validar saldos antes de comprometer stock o emitir códigos.
+- **Implicación para Kevin:** La Edge Function debe consultar la suma de `points_transactions` activos (no vencidos, del cliente) antes de insertar en `redemptions`. Retornar `{ error: 'insufficient_points', available: N, required: M }` en caso de fallo.
+- **Tomada por:** Kevin
+- **Fecha:** 15 de junio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
-| ID | Pregunta | Responsable | Urgencia |
-|---|---|---|---|
-| OPEN-001 | División de cuenta: ¿tabla propia `split_consumptions` o múltiples filas en `consumptions` con `session_id`? | Kevin | Semana 1 |
-| OPEN-002 | QR personal del cliente: ¿apunta a `profiles.id` o a un token único generado? | Kevin | Semana 3 |
-| OPEN-003 | Código de canje de 6 dígitos: ¿numérico o alfanumérico? | Kevin | Semana 3 |
-| OPEN-004 | Ajuste manual de puntos: ¿como `points_transaction` con tipo 'manual_adjustment' o tabla separada? | Kevin | Semana 4 |
-| OPEN-005 | ¿Cuánto tiempo hasta que expire un código de canje sin confirmar? (sugerido: 15 minutos) | Kevin + Fran | Semana 3 |
-| OPEN-006 | ¿Qué pasa si el cliente no tiene suficientes puntos al intentar canjear? ¿Error en el frontend o validación en backend? | Kevin | Semana 3 |
+*No hay decisiones abiertas por el momento.*
 
 ---
 

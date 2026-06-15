@@ -1,6 +1,6 @@
 # DB_SCHEMA.md — Esquema de base de datos
-> Propuesto por CTO Agent. Kevin debe revisar, ajustar y marcar como ✅ validado antes de crear las tablas.
-> Última actualización: 14 de junio de 2026 — Estado: BORRADOR (pendiente validación de Kevin)
+> ✅ Validado por Kevin — tablas creadas en producción.
+> Última actualización: 15 de junio de 2026 — Estado: VIGENTE
 
 ---
 
@@ -29,13 +29,14 @@ Extiende `auth.users` de Supabase. Una fila por usuario registrado.
 | Campo | Tipo | Notas |
 |---|---|---|
 | id | uuid PK | Referencia a `auth.users.id` |
-| role | text | 'cliente' / 'cajero' / 'admin' |
-| full_name | text | Nombre completo |
+| role | text | 'cliente' / 'cajero' / 'admin' — default 'cliente' vía trigger |
+| full_name | text | Nombre completo — el frontend siempre lo manda en signup |
 | phone | text nullable | Teléfono opcional |
+| qr_token | text UNIQUE | Token rotable para QR personal (DEC-008) |
 | created_at | timestamptz | — |
 | updated_at | timestamptz | — |
 
-RLS: cada usuario ve solo su propio perfil. Admin ve todos.
+RLS: cada usuario ve solo su propio perfil. Cajero y admin ven todos.
 
 ---
 
@@ -156,6 +157,7 @@ Registro de consumos cargados por el cajero.
 | amount | numeric(10,2) | Monto total del consumo |
 | points_earned | int | Puntos acreditados |
 | notes | text nullable | — |
+| session_id | uuid nullable | Agrupa filas del mismo grupo de mesa (DEC-007) |
 | consumed_at | timestamptz | Momento del consumo |
 | created_at | timestamptz | — |
 
@@ -184,8 +186,10 @@ Historial completo de movimientos de puntos (acreditaciones y descuentos).
 |---|---|---|
 | id | uuid PK | — |
 | client_id | uuid FK → profiles | — |
-| consumption_id | uuid FK nullable → consumptions | Si es acreditación |
-| redemption_id | uuid FK nullable → redemptions | Si es descuento por canje |
+| type | text NOT NULL | 'consumption' / 'redemption' / 'manual_adjustment' / 'expiry' (DEC-010) |
+| consumption_id | uuid FK nullable → consumptions | No nulo si type='consumption' |
+| redemption_id | uuid FK nullable → redemptions | No nulo si type='redemption' |
+| adjusted_by | uuid FK nullable → profiles | No nulo si type='manual_adjustment' — auditoría (DEC-010) |
 | points | int | Positivo = acreditación, Negativo = descuento |
 | expires_at | timestamptz nullable | Fecha de vencimiento (acreditaciones: +12 meses) |
 | created_at | timestamptz | — |
@@ -205,12 +209,12 @@ Canjes iniciados por el cliente y confirmados por el cajero.
 | client_id | uuid FK → profiles | — |
 | reward_id | uuid FK → rewards | — |
 | cashier_id | uuid FK nullable → profiles | Quien confirma |
-| code | char(6) | Código generado al iniciar canje |
+| code | char(6) | Código numérico generado al iniciar canje (DEC-009) |
 | status | text | 'pending' / 'confirmed' / 'expired' |
 | points_used | int | Puntos descontados |
 | initiated_at | timestamptz | Cuando el cliente inicia |
 | confirmed_at | timestamptz nullable | Cuando el cajero confirma |
-| expires_at | timestamptz | El código expira (sugerido: 15 min) |
+| expires_at | timestamptz | now() + 15 minutos (DEC-011) |
 | created_at | timestamptz | — |
 
 ⚠️ La confirmación del canje debe hacerse en una transacción SQL atómica: validar código + descontar puntos + actualizar stock (si aplica) + marcar como confirmed, todo o nada.
@@ -233,16 +237,8 @@ RLS: lectura pública. Escritura solo admin.
 
 ---
 
-## Índices sugeridos (Kevin decide)
-- `points_transactions(client_id, expires_at)` — para FIFO de canje
-- `redemptions(code, status)` — para búsqueda rápida del cajero
-- `products(category_id, is_available)` — para la carta
-- `time_offers(is_active)` — para filtrar ofertas activas
-
----
-
-## Preguntas abiertas para Kevin
-1. ¿División de cuenta: creamos una tabla `split_consumptions` o manejamos múltiples filas en `consumptions` vinculadas por un `session_id`?
-2. ¿El QR personal del cliente apunta a su `profiles.id` o generamos un token separado?
-3. ¿Los códigos de canje de 6 dígitos son numéricos o alfanuméricos?
-4. ¿Manejamos el ajuste manual de puntos como una `points_transaction` con `type = 'manual_adjustment'` o con una tabla separada?
+## Índices creados en producción
+- `idx_points_transactions_client_expires` → `points_transactions(client_id, expires_at)` — FIFO de canje
+- `idx_redemptions_code_status` → `redemptions(code, status)` — búsqueda rápida del cajero
+- `idx_products_category_available` → `products(category_id, is_available)` — carta pública
+- `idx_time_offers_active` → `time_offers(is_active)` — ofertas activas

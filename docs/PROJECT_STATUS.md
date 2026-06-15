@@ -1,10 +1,10 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 14 de junio de 2026
-**Estado general:** INICIO — Semana 0 (pre-arranque)
-**Semana actual:** 0 de 4
-**Riesgo de plazo:** Bajo (aún no iniciado)
+**Última actualización:** 15 de junio de 2026
+**Estado general:** EN CURSO — Semana 1
+**Semana actual:** 1 de 4
+**Riesgo de plazo:** Bajo
 
 ---
 
@@ -14,11 +14,11 @@
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| Setup Supabase + proyecto | Kevin | ⬜ Pendiente | — |
-| Esquema de base de datos | Kevin | ⬜ Pendiente | Ver DB_SCHEMA.md cuando esté listo |
-| Auth: email/password | Kevin | ⬜ Pendiente | — |
-| Auth: Google OAuth | Kevin | ⬜ Pendiente | — |
-| RLS base (roles: cliente, cajero, admin) | Kevin | ⬜ Pendiente | Crítico: sin esto nada es seguro |
+| Setup Supabase + proyecto | Kevin | ✅ Completado | Proyecto creado, CLI instalado |
+| Esquema de base de datos | Kevin | ✅ Completado | 11 tablas + trigger handle_new_user en prod |
+| Auth: email/password | Kevin | ✅ Completado | Supabase Auth activo + trigger crea perfil automáticamente |
+| Auth: Google OAuth | Kevin | ⬜ Pendiente | Configurar en Supabase Dashboard → Auth → Providers |
+| RLS base (roles: cliente, cajero, admin) | Kevin | ✅ Completado | Policies activas en todas las tablas |
 | Setup Next.js + estructura de carpetas | Fran | ⬜ Pendiente | — |
 | Design system (colores, tipografía, Tailwind) | Fran | ⬜ Pendiente | — |
 | Layout base (nav, estructura de páginas) | Fran | ⬜ Pendiente | — |
@@ -68,7 +68,7 @@
 ---
 
 ## Bloqueos activos
-_Ninguno por ahora — proyecto no iniciado._
+_Ninguno. Fran puede arrancar con Next.js + carta pública con datos mock._
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú
