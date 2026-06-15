@@ -1,9 +1,9 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 15 de junio de 2026 — tarde (Backend Agent)
-**Estado general:** EN CURSO — Semana 2
-**Semana actual:** 2 de 4
+**Última actualización:** 15 de junio de 2026 — noche (Backend Agent)
+**Estado general:** EN CURSO — Semana 4 (backend Kevin adelantado)
+**Semana actual:** 4 de 4
 **Riesgo de plazo:** Bajo
 
 ---
