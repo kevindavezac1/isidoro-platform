@@ -37,7 +37,7 @@
 | POST /functions/v1/initiate-redemption | POST | Edge Function | ✅ Listo |
 | POST /functions/v1/confirm-redemption | POST | Edge Function | ✅ Listo |
 | POST /functions/v1/split-consumption | POST | Edge Function | ✅ Listo |
-| GET /functions/v1/reports | GET | Edge Function | ⬜ Pendiente (S4) |
+| GET /functions/v1/reports | GET | Edge Function | ✅ Listo |
 
 ---
 
@@ -562,6 +562,88 @@ const { data, error } = await supabase.functions.invoke('split-consumption', {
 // 400 { "error": "Bad request", "code": "amount_mismatch", "sum": N, "expected": M }
 // 404 { "error": "client_not_found", "code": "client_not_found" }
 // 500 { "error": "Internal server error" }
+```
+
+---
+
+### GET /functions/v1/reports
+
+Reportes del panel admin. Devuelve 4 métricas en una sola llamada. Las 4 queries SQL se ejecutan en paralelo.
+
+- **Auth:** Sí — rol `admin` exclusivamente
+- **Implementación:** `supabase/functions/reports/index.ts`
+- **SQL functions:** `supabase/migrations/20260615000004_report_functions.sql`
+- Fechas sin `from`/`to` → defecto: últimos 30 días.
+- Fecha de consumos agrupada por día en `settings.timezone` (DEC-005), nunca UTC.
+
+```typescript
+// Request — query params
+const { data, error } = await supabase.functions.invoke('reports', {
+  method: 'GET',
+  headers: { 'Content-Type': 'application/json' },
+  // Pasar params como query string en la URL directamente:
+  // /functions/v1/reports?from=2026-06-01&to=2026-06-30&limit=10
+})
+
+// Alternativamente, construir la URL con params:
+const params = new URLSearchParams({ from: '2026-06-01', to: '2026-06-30', limit: '10' })
+const res = await fetch(
+  `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/reports?${params}`,
+  { headers: { Authorization: `Bearer ${session.access_token}` } }
+)
+
+// Parámetros disponibles:
+// ?from=2026-06-01          — ISO date o datetime, inclusive. Default: hoy - 30 días
+// ?to=2026-06-30            — ISO date o datetime, exclusive. Default: ahora
+// ?limit=10                 — top N para clientes y recompensas. Default 10, max 50
+
+// Response 200
+{
+  "period": {
+    "from":     "2026-06-01T00:00:00.000Z",
+    "to":       "2026-06-30T23:59:59.000Z",
+    "timezone": "America/Argentina/Buenos_Aires"
+  },
+  "summary": {
+    "total_revenue":         45000.00,
+    "total_consumptions":    87,
+    "unique_clients":        34,
+    "total_points_credited": 870,
+    "total_points_redeemed": 350
+  },
+  "consumptions_by_day": [
+    {
+      "date":         "2026-06-01",
+      "count":        12,
+      "total_amount": 18000.00,
+      "points_earned": 180
+    }
+  ],
+  "top_clients": [
+    {
+      "client_id":           "uuid",
+      "full_name":           "María García",
+      "visit_count":         8,
+      "total_spent":         12000.00,
+      "total_points_earned": 120
+    }
+  ],
+  "top_rewards": [
+    {
+      "reward_id":        "uuid",
+      "reward_name":      "Café gratis",
+      "redemption_count": 15,
+      "total_points_used": 750
+    }
+  ]
+}
+
+// Errores posibles
+// 401 { "error": "Unauthorized" }
+// 403 { "error": "Forbidden", "code": "insufficient_role" }
+// 400 { "error": "Bad request", "code": "invalid_date_format" }
+// 400 { "error": "Bad request", "code": "invalid_date_range", "detail": "from debe ser anterior a to" }
+// 500 { "error": "Internal server error", "code": "db_error" }
 ```
 
 ---

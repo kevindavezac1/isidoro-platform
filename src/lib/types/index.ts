@@ -71,6 +71,48 @@ export type SplitConsumptionResponse = {
   splits:     SplitConsumptionEntry[]
 }
 
+export type ReportSummary = {
+  total_revenue:         number
+  total_consumptions:    number
+  unique_clients:        number
+  total_points_credited: number
+  total_points_redeemed: number
+}
+
+export type ReportConsumptionByDay = {
+  date:         string
+  count:        number
+  total_amount: number
+  points_earned: number
+}
+
+export type ReportTopClient = {
+  client_id:           string
+  full_name:           string
+  visit_count:         number
+  total_spent:         number
+  total_points_earned: number
+}
+
+export type ReportTopReward = {
+  reward_id:         string
+  reward_name:       string
+  redemption_count:  number
+  total_points_used: number
+}
+
+export type ReportsResponse = {
+  period: {
+    from:     string
+    to:       string
+    timezone: string
+  }
+  summary:             ReportSummary
+  consumptions_by_day: ReportConsumptionByDay[]
+  top_clients:         ReportTopClient[]
+  top_rewards:         ReportTopReward[]
+}
+
 // Error de Edge Function
 export type EdgeFunctionError = {
   error:     string

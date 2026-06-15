@@ -59,7 +59,7 @@
 |---|---|---|---|
 | División de cuenta (lógica proporcional) | Kevin | ✅ Completado | Edge Fn split-consumption — SQL atómica, session_id server-side |
 | Ajuste manual de puntos (admin) | Kevin | ⬜ Pendiente | — |
-| Endpoints de reportes y estadísticas | Kevin | ⬜ Pendiente | — |
+| Endpoints de reportes y estadísticas | Kevin | ✅ Completado | Edge Fn reports — 4 SQL fns en paralelo, solo admin |
 | UI división de cuenta | Fran | ⬜ Pendiente | — |
 | Dashboard de estadísticas | Fran | ⬜ Pendiente | — |
 | Panel admin: búsqueda y gestión de clientes | Fran | ⬜ Pendiente | — |
