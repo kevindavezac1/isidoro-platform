@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 15 de junio de 2026
+**Última actualización:** 15 de junio de 2026 — cierre de jornada
 **Estado general:** EN CURSO — Semana 1
 **Semana actual:** 1 de 4
 **Riesgo de plazo:** Bajo
@@ -17,9 +17,9 @@
 | Setup Supabase + proyecto | Kevin | ✅ Completado | Proyecto creado, CLI instalado |
 | Esquema de base de datos | Kevin | ✅ Completado | 11 tablas + trigger handle_new_user en prod |
 | Auth: email/password | Kevin | ✅ Completado | Supabase Auth activo + trigger crea perfil automáticamente |
-| Auth: Google OAuth | Kevin | ⬜ Pendiente | Configurar en Supabase Dashboard → Auth → Providers |
+| Auth: Google OAuth | Kevin | ✅ Completado | Credenciales configuradas en Google Cloud Console y Supabase Dashboard |
 | RLS base (roles: cliente, cajero, admin) | Kevin | ✅ Completado | Policies activas en todas las tablas |
-| Setup Next.js + estructura de carpetas | Fran | ⬜ Pendiente | — |
+| Setup Next.js + estructura de carpetas | Kevin + Fran | ✅ Completado | Next.js 16 + Supabase clients + tipos TypeScript del schema |
 | Design system (colores, tipografía, Tailwind) | Fran | ⬜ Pendiente | — |
 | Layout base (nav, estructura de páginas) | Fran | ⬜ Pendiente | — |
 | Carta pública con datos mock + QR estático | Fran | ⬜ Pendiente | — |
@@ -68,7 +68,7 @@
 ---
 
 ## Bloqueos activos
-_Ninguno. Fran puede arrancar con Next.js + carta pública con datos mock._
+_Ninguno. Fran puede arrancar con design system + layout base + carta pública con datos mock._
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú
