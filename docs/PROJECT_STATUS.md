@@ -57,7 +57,7 @@
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| División de cuenta (lógica proporcional) | Kevin | ⬜ Pendiente | — |
+| División de cuenta (lógica proporcional) | Kevin | ✅ Completado | Edge Fn split-consumption — SQL atómica, session_id server-side |
 | Ajuste manual de puntos (admin) | Kevin | ⬜ Pendiente | — |
 | Endpoints de reportes y estadísticas | Kevin | ⬜ Pendiente | — |
 | UI división de cuenta | Fran | ⬜ Pendiente | — |

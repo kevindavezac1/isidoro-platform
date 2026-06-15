@@ -36,7 +36,7 @@
 | POST /functions/v1/register-consumption | POST | Edge Function | ✅ Listo |
 | POST /functions/v1/initiate-redemption | POST | Edge Function | ✅ Listo |
 | POST /functions/v1/confirm-redemption | POST | Edge Function | ✅ Listo |
-| POST /functions/v1/split-consumption | POST | Edge Function | ⬜ Pendiente (S4) |
+| POST /functions/v1/split-consumption | POST | Edge Function | ✅ Listo |
 | GET /functions/v1/reports | GET | Edge Function | ⬜ Pendiente (S4) |
 
 ---
@@ -507,6 +507,61 @@ const { data, error } = await supabase.functions.invoke('confirm-redemption', {
 // 400 { "error": "code_expired", "code": "code_expired" }
 // 400 { "error": "insufficient_points", "code": "insufficient_points" }
 // 400 { "error": "out_of_stock", "code": "out_of_stock" }
+```
+
+---
+
+### POST /functions/v1/split-consumption
+
+El cajero divide una cuenta de mesa entre N clientes. Cada uno recibe su propia fila en `consumptions` y gana puntos proporcionales a su monto. **Operación atómica garantizada** — si falla cualquier cliente, ninguno recibe puntos.
+
+- **Auth:** Sí — rol `cajero` o `admin`
+- **Implementación:** `supabase/functions/split-consumption/index.ts`
+- **SQL function:** `supabase/migrations/20260615000003_split_consumption.sql`
+- ⚠️ Todo o nada: si cualquier `client_id` es inválido o el monto es 0, se revierte todo.
+- El `session_id` que agrupa las filas es generado server-side (DEC-007). No enviarlo desde el cliente.
+
+```typescript
+// Request
+const { data, error } = await supabase.functions.invoke('split-consumption', {
+  body: {
+    splits: [
+      { client_id: "uuid-1", amount: 1200.00 },
+      { client_id: "uuid-2", amount: 1800.00 },
+    ],
+    total_amount: 3000.00,  // opcional — si se envía, se valida que SUM(splits.amount) coincida
+  }
+})
+
+// Response 200
+{
+  "session_id": "uuid",       // agrupa todas las filas en consumptions (DEC-007)
+  "splits": [
+    {
+      "client_id":      "uuid-1",
+      "consumption_id": "uuid",
+      "points_earned":  12,
+      "new_balance":    47
+    },
+    {
+      "client_id":      "uuid-2",
+      "consumption_id": "uuid",
+      "points_earned":  18,
+      "new_balance":    23
+    }
+  ]
+}
+
+// Errores posibles
+// 401 { "error": "Unauthorized" }
+// 403 { "error": "Forbidden", "code": "insufficient_role" }
+// 400 { "error": "Bad request", "code": "insufficient_splits", "detail": "..." }
+// 400 { "error": "Bad request", "code": "invalid_client_id" }
+// 400 { "error": "Bad request", "code": "invalid_amount", "detail": "..." }
+// 400 { "error": "Bad request", "code": "duplicate_client_id" }
+// 400 { "error": "Bad request", "code": "amount_mismatch", "sum": N, "expected": M }
+// 404 { "error": "client_not_found", "code": "client_not_found" }
+// 500 { "error": "Internal server error" }
 ```
 
 ---

@@ -59,10 +59,24 @@ export type ConfirmRedemptionResponse = {
   client_new_balance: number
 }
 
+export type SplitConsumptionEntry = {
+  client_id:      string
+  consumption_id: string
+  points_earned:  number
+  new_balance:    number
+}
+
+export type SplitConsumptionResponse = {
+  session_id: string
+  splits:     SplitConsumptionEntry[]
+}
+
 // Error de Edge Function
 export type EdgeFunctionError = {
-  error: string
-  code:  string
+  error:     string
+  code:      string
   available?: number
   required?:  number
+  sum?:       number
+  expected?:  number
 }
