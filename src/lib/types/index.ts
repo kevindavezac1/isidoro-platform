@@ -37,3 +37,32 @@ export type ConsumptionWithClient = Consumption & {
 
 // Roles
 export type UserRole = Profile['role']
+
+// Tipos de response de Edge Functions
+export type RegisterConsumptionResponse = {
+  consumption_id: string
+  points_earned:  number
+  new_balance:    number
+}
+
+export type InitiateRedemptionResponse = {
+  redemption_id: string
+  code:          string
+  expires_at:    string
+}
+
+export type ConfirmRedemptionResponse = {
+  redemption_id:      string
+  client_id:          string
+  reward_name:        string
+  points_used:        number
+  client_new_balance: number
+}
+
+// Error de Edge Function
+export type EdgeFunctionError = {
+  error: string
+  code:  string
+  available?: number
+  required?:  number
+}

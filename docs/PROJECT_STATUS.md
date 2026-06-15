@@ -1,9 +1,9 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 15 de junio de 2026 — cierre de jornada
-**Estado general:** EN CURSO — Semana 1
-**Semana actual:** 1 de 4
+**Última actualización:** 15 de junio de 2026 — tarde (Backend Agent)
+**Estado general:** EN CURSO — Semana 2
+**Semana actual:** 2 de 4
 **Riesgo de plazo:** Bajo
 
 ---
@@ -15,7 +15,8 @@
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
 | Setup Supabase + proyecto | Kevin | ✅ Completado | Proyecto creado, CLI instalado |
-| Esquema de base de datos | Kevin | ✅ Completado | 11 tablas + trigger handle_new_user en prod |
+| Esquema de base de datos | Kevin | ✅ Completado | 12 tablas + RLS en todas + índices |
+| Trigger handle_new_user | Kevin | ✅ Completado | Migration 000001: crea profile + points_balance en signup |
 | Auth: email/password | Kevin | ✅ Completado | Supabase Auth activo + trigger crea perfil automáticamente |
 | Auth: Google OAuth | Kevin | ✅ Completado | Credenciales configuradas en Google Cloud Console y Supabase Dashboard |
 | RLS base (roles: cliente, cajero, admin) | Kevin | ✅ Completado | Policies activas en todas las tablas |
@@ -28,10 +29,10 @@
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| API productos (CRUD) | Kevin | ⬜ Pendiente | Desbloquea trabajo de Fran |
-| API categorías (CRUD) | Kevin | ⬜ Pendiente | — |
-| API promociones con fechas | Kevin | ⬜ Pendiente | — |
-| API ofertas por horario + activación automática | Kevin | ⬜ Pendiente | ⚠️ Riesgo: zona horaria |
+| API productos (CRUD) | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
+| API categorías (CRUD) | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
+| API promociones con fechas | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
+| API ofertas por horario | Kevin | ✅ Completado | PostgREST + activación en cliente (DEC-013) |
 | Carta pública con datos reales + categorías | Fran | ⬜ Pendiente | Depende de API productos |
 | Panel admin: gestión de productos | Fran | ⬜ Pendiente | — |
 | Panel admin: gestión de categorías | Fran | ⬜ Pendiente | — |
@@ -42,11 +43,11 @@
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| Lógica de acreditación de puntos | Kevin | ⬜ Pendiente | Equivalencia configurable |
-| Vencimiento de puntos (FIFO, 12 meses) | Kevin | ⬜ Pendiente | ⚠️ Debe ser atómico |
-| Recompensas con stock opcional | Kevin | ⬜ Pendiente | — |
-| Generación de código de canje (6 dígitos) | Kevin | ⬜ Pendiente | — |
-| Confirmación de canje por cajero | Kevin | ⬜ Pendiente | ⚠️ Transacción atómica obligatoria |
+| Lógica de acreditación de puntos | Kevin | ✅ Completado | register_consumption SQL fn — atómico |
+| Vencimiento de puntos (FIFO, 12 meses) | Kevin | ✅ Completado | FIFO en confirm_redemption + expires_at en créditos |
+| Recompensas con stock opcional | Kevin | ✅ Completado | PostgREST + stock decrementado en confirm_redemption |
+| Generación de código de canje (6 dígitos) | Kevin | ✅ Completado | Edge Fn initiate-redemption — crypto.getRandomValues |
+| Confirmación de canje por cajero | Kevin | ✅ Completado | Edge Fn confirm-redemption — SQL atómica con FOR UPDATE |
 | Perfil del cliente (historial, saldo de puntos) | Fran | ⬜ Pendiente | — |
 | QR personal del cliente | Fran | ⬜ Pendiente | — |
 | Vista cajero: registrar consumo | Fran | ⬜ Pendiente | — |
@@ -68,7 +69,7 @@
 ---
 
 ## Bloqueos activos
-_Ninguno. Fran puede arrancar con design system + layout base + carta pública con datos mock._
+_Ninguno. Fran puede integrar con datos reales — todos los contratos de Semana 2 y Semana 3 están publicados en API_CONTRACTS.md._
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú

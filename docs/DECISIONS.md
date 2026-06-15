@@ -110,6 +110,15 @@
 
 ---
 
+### DEC-013 — Activación de time_offers: lógica en el cliente
+- **Decisión:** La lógica de "está activa ahora" para `time_offers` se calcula en el cliente. El frontend lee `settings.timezone`, convierte la hora actual a esa zona horaria y compara con `start_time` / `end_time`. No se crea una Edge Function separada para esto.
+- **Razonamiento:** `time_offers` es solo lectura para la carta pública. La activación no modifica estado. Poner la lógica en el cliente elimina una latencia de red y un Edge Function sin valor añadido. La única fuente de zona horaria es `settings.timezone` (DEC-005), nunca hardcodeada.
+- **Implicación para Fran:** Leer `settings.timezone` junto con `time_offers`. Usar una librería de fechas compatible con IANA timezone names (ej: `Intl.DateTimeFormat`) para la comparación.
+- **Tomada por:** Kevin (Backend Agent) — aprobado por CTO Agent
+- **Fecha:** 15 de junio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 *No hay decisiones abiertas por el momento.*
