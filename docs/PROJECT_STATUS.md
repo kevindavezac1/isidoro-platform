@@ -1,0 +1,94 @@
+# PROJECT_STATUS.md — Plataforma Isidoro
+> Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
+
+**Última actualización:** 14 de junio de 2026
+**Estado general:** INICIO — Semana 0 (pre-arranque)
+**Semana actual:** 0 de 4
+**Riesgo de plazo:** Bajo (aún no iniciado)
+
+---
+
+## Estado por módulo
+
+### Semana 1 — Fundamentos (bloqueantes)
+
+| Módulo | Responsable | Estado | Notas |
+|---|---|---|---|
+| Setup Supabase + proyecto | Kevin | ⬜ Pendiente | — |
+| Esquema de base de datos | Kevin | ⬜ Pendiente | Ver DB_SCHEMA.md cuando esté listo |
+| Auth: email/password | Kevin | ⬜ Pendiente | — |
+| Auth: Google OAuth | Kevin | ⬜ Pendiente | — |
+| RLS base (roles: cliente, cajero, admin) | Kevin | ⬜ Pendiente | Crítico: sin esto nada es seguro |
+| Setup Next.js + estructura de carpetas | Fran | ⬜ Pendiente | — |
+| Design system (colores, tipografía, Tailwind) | Fran | ⬜ Pendiente | — |
+| Layout base (nav, estructura de páginas) | Fran | ⬜ Pendiente | — |
+| Carta pública con datos mock + QR estático | Fran | ⬜ Pendiente | — |
+
+### Semana 2 — Carta digital + gestión de productos
+
+| Módulo | Responsable | Estado | Notas |
+|---|---|---|---|
+| API productos (CRUD) | Kevin | ⬜ Pendiente | Desbloquea trabajo de Fran |
+| API categorías (CRUD) | Kevin | ⬜ Pendiente | — |
+| API promociones con fechas | Kevin | ⬜ Pendiente | — |
+| API ofertas por horario + activación automática | Kevin | ⬜ Pendiente | ⚠️ Riesgo: zona horaria |
+| Carta pública con datos reales + categorías | Fran | ⬜ Pendiente | Depende de API productos |
+| Panel admin: gestión de productos | Fran | ⬜ Pendiente | — |
+| Panel admin: gestión de categorías | Fran | ⬜ Pendiente | — |
+| Panel admin: promociones y ofertas por horario | Fran | ⬜ Pendiente | — |
+| QR dinámico funcional | Fran | ⬜ Pendiente | — |
+
+### Semana 3 — Sistema de puntos + caja
+
+| Módulo | Responsable | Estado | Notas |
+|---|---|---|---|
+| Lógica de acreditación de puntos | Kevin | ⬜ Pendiente | Equivalencia configurable |
+| Vencimiento de puntos (FIFO, 12 meses) | Kevin | ⬜ Pendiente | ⚠️ Debe ser atómico |
+| Recompensas con stock opcional | Kevin | ⬜ Pendiente | — |
+| Generación de código de canje (6 dígitos) | Kevin | ⬜ Pendiente | — |
+| Confirmación de canje por cajero | Kevin | ⬜ Pendiente | ⚠️ Transacción atómica obligatoria |
+| Perfil del cliente (historial, saldo de puntos) | Fran | ⬜ Pendiente | — |
+| QR personal del cliente | Fran | ⬜ Pendiente | — |
+| Vista cajero: registrar consumo | Fran | ⬜ Pendiente | — |
+| Vista cajero: confirmar canje con código | Fran | ⬜ Pendiente | — |
+
+### Semana 4 — División de cuenta + estadísticas + QA
+
+| Módulo | Responsable | Estado | Notas |
+|---|---|---|---|
+| División de cuenta (lógica proporcional) | Kevin | ⬜ Pendiente | — |
+| Ajuste manual de puntos (admin) | Kevin | ⬜ Pendiente | — |
+| Endpoints de reportes y estadísticas | Kevin | ⬜ Pendiente | — |
+| UI división de cuenta | Fran | ⬜ Pendiente | — |
+| Dashboard de estadísticas | Fran | ⬜ Pendiente | — |
+| Panel admin: búsqueda y gestión de clientes | Fran | ⬜ Pendiente | — |
+| QA completo de todos los flujos | Kevin + Fran | ⬜ Pendiente | — |
+| Deploy a producción | Kevin + Fran | ⬜ Pendiente | — |
+
+---
+
+## Bloqueos activos
+_Ninguno por ahora — proyecto no iniciado._
+
+## Pendientes del cliente (Restaurante Isidoro)
+- [ ] Fotos de todos los productos del menú
+- [ ] Nombre, descripción y precio de cada producto
+- [ ] Categorías del menú (ej: entradas, principales, postres, bebidas)
+- [ ] Logo del restaurante en alta resolución
+- [ ] Datos del administrador principal (email para crear cuenta admin)
+- [ ] Zona horaria del restaurante (para ofertas por horario)
+- [ ] Dominio web contratado y apuntado
+
+## Decisiones tomadas
+_Ver DECISIONS.md_
+
+---
+
+## Leyenda de estado
+| Símbolo | Significado |
+|---|---|
+| ⬜ Pendiente | No iniciado |
+| 🔄 En progreso | En desarrollo activo |
+| ✅ Completado | Terminado y testeado |
+| 🔴 Bloqueado | Esperando dependencia |
+| ⚠️ Riesgo | Requiere atención especial |
