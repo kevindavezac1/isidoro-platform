@@ -110,6 +110,34 @@
 
 ---
 
+---
+
+### DEC-013 — Design system: paleta de color cálida provisional
+- **Decisión:** Paleta basada en ámbar/dorado cálido (`#C8973C`) como color brand, fondo crema (`#FAF8F5`), texto casi negro cálido (`#1C1917`). Definida como tokens CSS en `globals.css` vía `@theme inline` de Tailwind v4.
+- **Razonamiento:** El cliente no entregó identidad visual todavía (pendiente). Paleta cálida es estándar para gastronomía, fácil de reemplazar cambiando los tokens de `:root`.
+- **Pendiente:** Reemplazar con colores reales cuando el cliente entregue logo e identidad visual.
+- **Tomada por:** Fran (Frontend Agent)
+- **Fecha:** 18 de junio de 2026
+
+---
+
+### DEC-014 — Carta pública: verificación de ofertas por horario en servidor
+- **Decisión:** Las `time_offers` activas se evalúan en el servidor con `dynamic = 'force-dynamic'` (no cacheada), usando `America/Argentina/Buenos_Aires` como zona horaria (consistente con DEC-005).
+- **Razonamiento:** Evita hidratación diferente entre servidor y cliente. Con `force-dynamic` la página siempre refleja el horario actual sin complejidad de cliente.
+- **Implicación:** Cuando exista el endpoint real de `time_offers`, mantener `force-dynamic` o implementar revalidación corta (ej: `revalidate = 60`).
+- **Tomada por:** Fran (Frontend Agent)
+- **Fecha:** 18 de junio de 2026
+
+---
+
+### DEC-015 — Carta pública: categorías como tabs sticky con scroll-to por JS
+- **Decisión:** Tabs de categorías son sticky (top:0) y usan `scrollIntoView({ behavior: 'smooth' })` en `CategoryTabs` (Client Component). Estado activo del tab se maneja por click, no por IntersectionObserver.
+- **Razonamiento:** IntersectionObserver para detectar sección visible agrega complejidad significativa con beneficio marginal en un menú. El tab activo por click es suficiente para la UX del restaurante.
+- **Tomada por:** Fran (Frontend Agent)
+- **Fecha:** 18 de junio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 *No hay decisiones abiertas por el momento.*

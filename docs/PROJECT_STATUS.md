@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 15 de junio de 2026 — cierre de jornada
+**Última actualización:** 18 de junio de 2026 — Frontend Agent (Fran)
 **Estado general:** EN CURSO — Semana 1
 **Semana actual:** 1 de 4
 **Riesgo de plazo:** Bajo
@@ -20,9 +20,9 @@
 | Auth: Google OAuth | Kevin | ✅ Completado | Credenciales configuradas en Google Cloud Console y Supabase Dashboard |
 | RLS base (roles: cliente, cajero, admin) | Kevin | ✅ Completado | Policies activas en todas las tablas |
 | Setup Next.js + estructura de carpetas | Kevin + Fran | ✅ Completado | Next.js 16 + Supabase clients + tipos TypeScript del schema |
-| Design system (colores, tipografía, Tailwind) | Fran | ⬜ Pendiente | — |
-| Layout base (nav, estructura de páginas) | Fran | ⬜ Pendiente | — |
-| Carta pública con datos mock + QR estático | Fran | ⬜ Pendiente | — |
+| Design system (colores, tipografía, Tailwind) | Fran | ✅ Completado | Tokens en globals.css, paleta cálida restaurante |
+| Layout base (nav, estructura de páginas) | Fran | ✅ Completado | Route groups (public/cliente/cajero/admin), redirect / → /carta |
+| Carta pública con datos mock + QR estático | Fran | ✅ Completado | Mobile-first, categorías sticky, banners activos por horario y fecha |
 
 ### Semana 2 — Carta digital + gestión de productos
 
@@ -68,7 +68,7 @@
 ---
 
 ## Bloqueos activos
-_Ninguno. Fran puede arrancar con design system + layout base + carta pública con datos mock._
+- **⚠️ Kevin: `middleware.ts` usa convención deprecated en Next.js 16.** Renombrar a `proxy.ts` y la función a `proxy`. Ver docs: `node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md`
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú
