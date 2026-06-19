@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 15 de junio de 2026 — noche (Backend Agent)
+**Última actualización:** 19 de junio de 2026 — noche (Backend Agent)
 **Estado general:** EN CURSO — Semana 4 (backend Kevin adelantado)
 **Semana actual:** 4 de 4
 **Riesgo de plazo:** Bajo
@@ -58,7 +58,7 @@
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
 | División de cuenta (lógica proporcional) | Kevin | ✅ Completado | Edge Fn split-consumption — SQL atómica, session_id server-side |
-| Ajuste manual de puntos (admin) | Kevin | ⬜ Pendiente | — |
+| Ajuste manual de puntos (admin) | Kevin | ✅ Completado | Edge Fn adjust-points + SQL fn adjust_points — atómico, solo admin |
 | Endpoints de reportes y estadísticas | Kevin | ✅ Completado | Edge Fn reports — 4 SQL fns en paralelo, solo admin |
 | UI división de cuenta | Fran | ⬜ Pendiente | — |
 | Dashboard de estadísticas | Fran | ⬜ Pendiente | — |
@@ -69,7 +69,7 @@
 ---
 
 ## Bloqueos activos
-_Ninguno. Fran puede integrar con datos reales — todos los contratos de Semana 2 y Semana 3 están publicados en API_CONTRACTS.md._
+_Ninguno. Fran puede integrar con datos reales — todos los contratos de Semana 2, Semana 3 y Semana 4 están publicados en API_CONTRACTS.md._
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú

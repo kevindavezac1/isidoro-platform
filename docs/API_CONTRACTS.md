@@ -1,6 +1,6 @@
 # API_CONTRACTS.md — Contratos de API
 > Kevin completa este documento al terminar cada endpoint. Fran lo usa para integrar sin preguntar.
-> Última actualización: 15 de junio de 2026 — Kevin (Backend Agent)
+> Última actualización: 19 de junio de 2026 — Kevin (Backend Agent)
 
 ---
 
@@ -38,6 +38,7 @@
 | POST /functions/v1/confirm-redemption | POST | Edge Function | ✅ Listo |
 | POST /functions/v1/split-consumption | POST | Edge Function | ✅ Listo |
 | GET /functions/v1/reports | GET | Edge Function | ✅ Listo |
+| POST /functions/v1/adjust-points | POST | Edge Function | ✅ Listo |
 
 ---
 
@@ -648,6 +649,50 @@ const res = await fetch(
 
 ---
 
+---
+
+### POST /functions/v1/adjust-points
+
+El admin acredita o descuenta puntos manualmente a un cliente. Operación atómica: inserta en `points_transactions` y actualiza `points_balance` en una sola transacción SQL.
+
+- **Auth:** Sí — rol `admin` exclusivamente
+- **Implementación:** `supabase/functions/adjust-points/index.ts`
+- **SQL function:** `supabase/migrations/20260619000000_adjust_points.sql`
+- ⚠️ Crédito: `expires_at` por defecto = now() + 12 meses. Configurable vía param.
+- ⚠️ Débito: valida saldo suficiente antes de descontar. Falla con 400 si no alcanza.
+
+```typescript
+// Request
+const { data, error } = await supabase.functions.invoke('adjust-points', {
+  body: {
+    client_id:  "uuid",          // obligatorio: UUID del cliente
+    points:     50,              // obligatorio: entero ≠ 0. Positivo = crédito, Negativo = débito
+    notes:      "Compensación por error en caja",  // opcional: razón del ajuste (auditoría)
+    expires_at: "2027-06-19T00:00:00Z",            // opcional: solo aplica a créditos
+  }
+})
+
+// Response 200
+{
+  "transaction_id": "uuid",
+  "client_id":      "uuid",
+  "points":         50,
+  "new_balance":    120
+}
+
+// Errores posibles
+// 401 { "error": "Unauthorized" }
+// 403 { "error": "Forbidden", "code": "insufficient_role" }
+// 400 { "error": "Bad request", "code": "missing_client_id" }
+// 400 { "error": "Bad request", "code": "invalid_points" }           — 0 o no entero
+// 400 { "error": "Bad request", "code": "invalid_expires_at" }
+// 400 { "error": "insufficient_points", "code": "insufficient_points" }
+// 404 { "error": "client_not_found", "code": "client_not_found" }
+// 500 { "error": "Internal server error" }
+```
+
+---
+
 ## Tipos TypeScript para Fran
 
 ```typescript
@@ -688,5 +733,12 @@ export type ConfirmRedemptionResponse = {
   reward_name:        string
   points_used:        number
   client_new_balance: number
+}
+
+export type AdjustPointsResponse = {
+  transaction_id: string
+  client_id:      string
+  points:         number
+  new_balance:    number
 }
 ```
