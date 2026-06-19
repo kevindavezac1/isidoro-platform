@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 18 de junio de 2026 — Frontend Agent (Fran)
+**Última actualización:** 18 de junio de 2026 — Frontend Agent (Fran) — sesión 2
 **Estado general:** EN CURSO — Semana 1
 **Semana actual:** 1 de 4
 **Riesgo de plazo:** Bajo
@@ -23,6 +23,13 @@
 | Design system (colores, tipografía, Tailwind) | Fran | ✅ Completado | Tokens en globals.css, paleta cálida restaurante |
 | Layout base (nav, estructura de páginas) | Fran | ✅ Completado | Route groups (public/cliente/cajero/admin), redirect / → /carta |
 | Carta pública con datos mock + QR estático | Fran | ✅ Completado | Mobile-first, categorías sticky, banners activos por horario y fecha |
+
+### Auth (adelantado de S2, desbloqueado por Kevin en S1)
+
+| Módulo | Responsable | Estado | Notas |
+|---|---|---|---|
+| Login email/password + Google OAuth | Fran | ✅ Completado | Redirect por rol. Ruta `/auth/callback` para OAuth. |
+| Registro email/password + Google OAuth | Fran | ✅ Completado | `full_name` en `options.data`. Maneja email confirm + auto-login. |
 
 ### Semana 2 — Carta digital + gestión de productos
 
