@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 23 de junio de 2026 — Frontend Agent (Fran) — sesión 6
+**Última actualización:** 23 de junio de 2026 — Frontend Agent (Fran) — sesión 7
 **Estado general:** EN CURSO — Semana 1
 **Semana actual:** 1 de 4
 **Riesgo de plazo:** Bajo
@@ -42,7 +42,7 @@
 | Carta pública con datos reales + categorías | Fran | ⬜ Pendiente | Depende de API productos |
 | Panel admin: gestión de productos | Fran | ✅ Completado | CRUD completo con mock. Server Actions listas para reemplazar con Supabase. |
 | Panel admin: gestión de categorías | Fran | ✅ Completado | CRUD completo con mock. Muestra conteo de productos por categoría. |
-| Panel admin: promociones y ofertas por horario | Fran | ⬜ Pendiente | — |
+| Panel admin: promociones y ofertas por horario | Fran | ✅ Completado | CRUD completo con mock. PromoForm con datetime-local, TimeOfferForm con product associations + price_override. |
 | QR dinámico funcional | Fran | ✅ Completado | Mismo QR del perfil: SVG server-side desde `profiles.qr_token` real |
 
 ### Semana 3 — Sistema de puntos + caja
