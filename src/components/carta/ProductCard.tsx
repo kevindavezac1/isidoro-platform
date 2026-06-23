@@ -35,7 +35,15 @@ export function ProductCard({ product, pointsPerPeso }: ProductCardProps) {
     <article
       className={`flex gap-3 overflow-hidden rounded-xl border border-border bg-surface${unavailable ? ' opacity-60' : ''}`}
     >
-      <div className="flex h-24 w-24 shrink-0 items-center justify-center bg-surface-alt">
+      <div
+        className="flex shrink-0 items-center justify-center"
+        style={{
+          width: 96,
+          height: 96,
+          background: 'var(--surface-alt)',
+          borderRadius: 12,
+        }}
+      >
         <ImagePlaceholder />
       </div>
 

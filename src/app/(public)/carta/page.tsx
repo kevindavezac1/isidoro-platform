@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { IsidoroLogo } from '@/components/IsidoroLogo'
 import {
   MOCK_CATEGORIES,
   MOCK_PRODUCTS,
@@ -107,13 +108,8 @@ export default async function CartaPage() {
         <div className="flex items-center justify-between px-3 py-3">
           <CategoryMenu categories={categories} />
 
-          <div className="text-center">
-            <h1
-              className="text-xl font-bold tracking-tight font-display"
-              style={{ color: 'var(--brand)' }}
-            >
-              Isidoro
-            </h1>
+          <div className="flex items-center justify-center">
+            <IsidoroLogo height={48} />
           </div>
 
           <Link

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { IsidoroLogo } from '@/components/IsidoroLogo'
 
 async function logout() {
   'use server'
@@ -34,12 +35,7 @@ export default async function ClienteLayout({
         className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b"
         style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
       >
-        <span
-          className="text-xl font-bold tracking-tight font-display"
-          style={{ color: 'var(--brand)' }}
-        >
-          Isidoro
-        </span>
+        <IsidoroLogo height={40} />
         <div className="flex items-center gap-3">
           <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
             {profile.full_name.split(' ')[0]}

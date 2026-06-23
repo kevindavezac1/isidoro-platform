@@ -5,21 +5,21 @@ interface PromoCarouselProps {
   slides: PromoSlide[]
 }
 
-function ImagePlaceholder() {
+function SlideImagePlaceholder() {
   return (
     <div
-      className="flex items-center justify-center bg-surface-alt"
-      style={{ height: 120 }}
+      className="flex items-center justify-center w-full"
+      style={{ height: 130, background: 'rgba(0,0,0,0.25)' }}
     >
       <svg
-        width="32"
-        height="32"
+        width="36"
+        height="36"
         fill="none"
-        stroke="currentColor"
-        strokeWidth={1.5}
+        stroke="#ca9e69"
+        strokeWidth={1.2}
         viewBox="0 0 24 24"
-        className="text-border"
         aria-hidden="true"
+        opacity={0.4}
       >
         <path
           strokeLinecap="round"
@@ -36,61 +36,71 @@ export function PromoCarousel({ slides }: PromoCarouselProps) {
 
   return (
     <div
-      className="border-b border-border"
-      style={{ background: 'var(--brand-light)' }}
+      className="flex gap-3 px-4 py-3 overflow-x-auto border-b"
+      style={{
+        scrollSnapType: 'x mandatory',
+        WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'],
+        scrollbarWidth: 'none' as React.CSSProperties['scrollbarWidth'],
+        msOverflowStyle: 'none' as React.CSSProperties['msOverflowStyle'],
+        borderColor: 'var(--border)',
+      }}
     >
-      <div
-        className="flex gap-3 px-4 py-3 overflow-x-auto"
-        style={{
-          scrollSnapType: 'x mandatory',
-          WebkitOverflowScrolling: 'touch' as React.CSSProperties['WebkitOverflowScrolling'],
-          scrollbarWidth: 'none' as React.CSSProperties['scrollbarWidth'],
-          msOverflowStyle: 'none' as React.CSSProperties['msOverflowStyle'],
-        }}
-      >
-        {slides.map((slide) => (
-          <article
-            key={slide.id}
-            className="shrink-0 rounded-xl overflow-hidden border border-border"
-            style={{
-              scrollSnapAlign: 'start',
-              width: '72vw',
-              maxWidth: 260,
-              background: 'var(--surface)',
-            }}
-          >
-            <ImagePlaceholder />
-            <div className="p-3">
+      {slides.map((slide) => (
+        <article
+          key={slide.id}
+          className="shrink-0 rounded-2xl overflow-hidden flex flex-col"
+          style={{
+            scrollSnapAlign: 'start',
+            width: '80vw',
+            maxWidth: 300,
+            height: 220,
+            background: 'var(--surface)',
+          }}
+        >
+          <SlideImagePlaceholder />
+
+          <div className="flex flex-col justify-between flex-1 px-4 py-3">
+            <div>
               <span
-                className="inline-block rounded-full px-2.5 py-0.5 text-xs font-bold mb-2"
+                className="inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold mb-2"
                 style={{ background: 'var(--brand)', color: 'var(--background)' }}
               >
                 {slide.badge}
               </span>
-              <p className="text-sm font-semibold leading-tight" style={{ color: 'var(--foreground)' }}>
+              <p
+                className="text-base font-semibold leading-tight font-display"
+                style={{ color: 'var(--brand)' }}
+              >
                 {slide.title}
               </p>
               {slide.description && (
-                <p className="mt-0.5 text-xs line-clamp-2" style={{ color: 'var(--text-muted)' }}>
+                <p
+                  className="mt-1 text-xs line-clamp-2"
+                  style={{ color: 'rgba(245,239,230,0.65)' }}
+                >
                   {slide.description}
                 </p>
               )}
-              {slide.price != null && (
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-sm font-bold" style={{ color: 'var(--brand)' }}>
-                    {formatARS(slide.price)}
-                  </span>
-                  {slide.originalPrice != null && (
-                    <span className="text-xs line-through" style={{ color: 'var(--text-muted)' }}>
-                      {formatARS(slide.originalPrice)}
-                    </span>
-                  )}
-                </div>
-              )}
             </div>
-          </article>
-        ))}
-      </div>
+
+            {slide.price != null && (
+              <div className="flex items-baseline gap-2 mt-2">
+                <span className="text-sm font-bold" style={{ color: 'var(--brand)' }}>
+                  {formatARS(slide.price)}
+                </span>
+                {slide.originalPrice != null && (
+                  <span
+                    className="text-xs line-through"
+                    style={{ color: 'rgba(245,239,230,0.45)' }}
+                  >
+                    {formatARS(slide.originalPrice)}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </article>
+      ))}
     </div>
   )
 }
