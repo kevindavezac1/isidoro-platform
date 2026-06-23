@@ -38,11 +38,6 @@ export type ConsumptionWithClient = Consumption & {
 // Roles
 export type UserRole = Profile['role']
 
-// UI-only: price_override needs to be added to time_offer_products by Kevin — see DEC-019
-export type TimeOfferProductWithPrice = TimeOfferProduct & {
-  price_override: number | null
-}
-
 export type ProductWithDiscount = Product & {
   discount_price: number | null
 }

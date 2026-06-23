@@ -76,7 +76,7 @@
 
 ## Bloqueos activos
 - **⚠️ Kevin: `middleware.ts` usa convención deprecated en Next.js 16.** Renombrar a `proxy.ts` y la función a `proxy`. Ver docs: `node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md`
-- **⚠️ Kevin: agregar `price_override NUMERIC(10,2) NULLABLE` a `time_offer_products`** para que el descuento de precios funcione con datos reales. Ver DEC-020.
+- ~~**Kevin: agregar `price_override` a `time_offer_products`**~~ ✅ Resuelto — migración `20260623000000` aplicada, `database.types.ts` actualizado.
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú

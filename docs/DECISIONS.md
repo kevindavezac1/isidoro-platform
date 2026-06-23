@@ -172,12 +172,13 @@
 
 ---
 
-### DEC-020 — Precio con descuento: `price_override` pendiente en schema
-- **Decisión:** Crear tipo UI `TimeOfferProductWithPrice = TimeOfferProduct & { price_override: number | null }` y mock `MOCK_TIME_OFFER_PRODUCTS`. El componente `ProductCard` recibe `ProductWithDiscount = Product & { discount_price: number | null }`. Los descuentos se calculan en `carta/page.tsx` cruzando productos con time offers activas.
-- **⚠️ Kevin debe agregar:** columna `price_override NUMERIC(10,2) NULLABLE` a la tabla `time_offer_products` y exponerla en `GET /rest/v1/time_offer_products`. Sin esto, el descuento de precios solo funciona con mock data.
-- **Razonamiento:** La UI y los tipos están listos. El cambio para conectar datos reales es una sola línea en `carta/page.tsx` (reemplazar `MOCK_TIME_OFFER_PRODUCTS` por query Supabase).
-- **Tomada por:** Fran (Frontend Agent), pendiente Kevin
-- **Fecha:** 23 de junio de 2026
+### DEC-020 — Precio con descuento: `price_override` en `time_offer_products` ✅ Resuelto
+- **Decisión:** Columna `price_override NUMERIC(10,2) NULLABLE` en `time_offer_products`. `NULL` = usar `products.price` sin cambio. Valor presente = precio de venta durante la oferta (frontend muestra precio original tachado + precio override en dorado).
+- **Implementación:** Migración `20260623000000_add_price_override_to_time_offer_products.sql`. `database.types.ts` actualizado. Tipo compuesto UI `TimeOfferProductWithPrice` eliminado (columna ahora en tipo base `TimeOfferProduct`).
+- **Puntos sobre precio con descuento:** se calculan sobre `price_override`, no sobre `products.price`.
+- **Integración pendiente:** `carta/page.tsx` usa `MOCK_TIME_OFFER_PRODUCTS`. Reemplazar por `supabase.from('time_offer_products').select('*').in('time_offer_id', activeOfferIds)` cuando Kevin habilite RLS en el endpoint público.
+- **Tomada por:** Fran (DEC inicial) + Kevin (migración)
+- **Fecha resolución:** 23 de junio de 2026
 
 ---
 

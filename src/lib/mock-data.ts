@@ -1,4 +1,4 @@
-import type { Category, Product, Promotion, TimeOffer, Profile, PointsBalance, PointsTransaction, Reward, Settings, TimeOfferProductWithPrice } from '@/lib/types'
+import type { Category, Product, Promotion, TimeOffer, Profile, PointsBalance, PointsTransaction, Reward, Settings, TimeOfferProduct } from '@/lib/types'
 
 export const MOCK_CATEGORIES: Category[] = [
   {
@@ -367,8 +367,7 @@ export const MOCK_SETTINGS: Settings = {
   updated_at: '2026-06-01T00:00:00Z',
 }
 
-// price_override: Kevin needs to add this column to time_offer_products — see DEC-019
-export const MOCK_TIME_OFFER_PRODUCTS: TimeOfferProductWithPrice[] = [
+export const MOCK_TIME_OFFER_PRODUCTS: TimeOfferProduct[] = [
   {
     id: 'top-1',
     time_offer_id: 'offer-1',

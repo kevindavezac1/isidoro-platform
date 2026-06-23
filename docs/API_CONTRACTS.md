@@ -24,6 +24,7 @@
 | PUT /rest/v1/products/{id} | PATCH | S2 | ⬜ Pendiente |
 | DELETE /rest/v1/products/{id} | DELETE | S2 | ⬜ Pendiente |
 | GET /rest/v1/time_offers | GET | S2 | ⬜ Pendiente |
+| GET /rest/v1/time_offer_products | GET | S2 | ✅ Schema listo (migración 20260623000000) |
 | POST /functions/v1/register-consumption | POST | S3 | ⬜ Pendiente |
 | POST /functions/v1/initiate-redemption | POST | S3 | ⬜ Pendiente |
 | POST /functions/v1/confirm-redemption | POST | S3 | ⬜ Pendiente |
@@ -111,6 +112,27 @@ Kevin: confirmar redirect URL configurada en Supabase Dashboard
 - Descripción: Lista todas las ofertas (la lógica de "activa ahora" se resuelve en el cliente comparando con la hora local del restaurante)
 - ⚠️ Kevin: confirmar si la activación se resuelve en cliente o en una Edge Function que devuelve solo las activas
 - Estado: ⬜ Pendiente
+
+**GET /rest/v1/time_offer_products**
+- Descripción: Productos asociados a cada oferta por horario. Incluye `price_override` para sobreescribir el precio del producto durante la oferta.
+- Auth requerida: No (lectura pública)
+- Filtros disponibles: `time_offer_id=eq.{id}`, `select=*,products(*)` para join con productos
+- Estado: ✅ Schema listo (migración `20260623000000`)
+- Ejemplo de response:
+```json
+[
+  {
+    "id": "uuid",
+    "time_offer_id": "uuid",
+    "product_id": "uuid",
+    "price_override": 1750.00
+  }
+]
+```
+- Notas:
+  - `price_override = null` → mostrar `products.price` sin modificación
+  - `price_override != null` → mostrar precio tachado (`products.price`) + precio destacado (`price_override`)
+  - El frontend calcula los puntos acumulables sobre el `price_override` cuando existe (DEC-020)
 
 ---
 
