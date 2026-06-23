@@ -1,5 +1,5 @@
 import { formatARS } from '@/lib/utils'
-import type { Product } from '@/lib/types'
+import type { ProductWithDiscount } from '@/lib/types'
 
 function ImagePlaceholder() {
   return (
@@ -21,11 +21,15 @@ function ImagePlaceholder() {
 }
 
 interface ProductCardProps {
-  product: Product
+  product: ProductWithDiscount
+  pointsPerPeso: number
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, pointsPerPeso }: ProductCardProps) {
   const unavailable = !product.is_available
+  const hasDiscount = product.discount_price != null
+  const displayPrice = hasDiscount ? product.discount_price! : product.price
+  const pointsEarned = Math.floor(displayPrice * pointsPerPeso)
 
   return (
     <article
@@ -34,6 +38,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex h-24 w-24 shrink-0 items-center justify-center bg-surface-alt">
         <ImagePlaceholder />
       </div>
+
       <div className="flex min-w-0 flex-1 flex-col justify-center py-3 pr-3">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-sm font-semibold leading-tight text-foreground">
@@ -44,14 +49,35 @@ export function ProductCard({ product }: ProductCardProps) {
               Sin stock
             </span>
           )}
+          {!unavailable && hasDiscount && (
+            <span
+              className="shrink-0 rounded-full px-2 py-0.5 text-xs font-bold"
+              style={{ background: 'var(--brand)', color: '#fff' }}
+            >
+              PROMO
+            </span>
+          )}
         </div>
+
         {product.description && (
           <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-text-muted">
             {product.description}
           </p>
         )}
-        <p className="mt-2 text-sm font-bold text-brand">
-          {formatARS(product.price)}
+
+        <div className="mt-2 flex items-baseline gap-2">
+          <p className="text-sm font-bold text-brand">
+            {formatARS(displayPrice)}
+          </p>
+          {hasDiscount && (
+            <p className="text-xs text-text-muted line-through">
+              {formatARS(product.price)}
+            </p>
+          )}
+        </div>
+
+        <p className="mt-0.5 text-xs text-text-muted">
+          + {pointsEarned} pts
         </p>
       </div>
     </article>

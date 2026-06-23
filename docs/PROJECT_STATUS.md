@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 18 de junio de 2026 — Frontend Agent (Fran) — sesión 2
+**Última actualización:** 23 de junio de 2026 — Frontend Agent (Fran) — sesión 4
 **Estado general:** EN CURSO — Semana 1
 **Semana actual:** 1 de 4
 **Riesgo de plazo:** Bajo
@@ -22,7 +22,7 @@
 | Setup Next.js + estructura de carpetas | Kevin + Fran | ✅ Completado | Next.js 16 + Supabase clients + tipos TypeScript del schema |
 | Design system (colores, tipografía, Tailwind) | Fran | ✅ Completado | Tokens en globals.css, paleta cálida restaurante |
 | Layout base (nav, estructura de páginas) | Fran | ✅ Completado | Route groups (public/cliente/cajero/admin), redirect / → /carta |
-| Carta pública con datos mock + QR estático | Fran | ✅ Completado | Mobile-first, categorías sticky, banners activos por horario y fecha |
+| Carta pública con datos mock + QR estático | Fran | ✅ Completado | Mobile-first, menú hamburguesa, carrusel promos, ícono usuario, puntos por producto, precio con descuento |
 
 ### Auth (adelantado de S2, desbloqueado por Kevin en S1)
 
@@ -54,8 +54,8 @@
 | Recompensas con stock opcional | Kevin | ⬜ Pendiente | — |
 | Generación de código de canje (6 dígitos) | Kevin | ⬜ Pendiente | — |
 | Confirmación de canje por cajero | Kevin | ⬜ Pendiente | ⚠️ Transacción atómica obligatoria |
-| Perfil del cliente (historial, saldo de puntos) | Fran | ⬜ Pendiente | — |
-| QR personal del cliente | Fran | ⬜ Pendiente | — |
+| Perfil del cliente (historial, saldo de puntos) | Fran | ✅ Completado | Mock data. Reemplazar cuando Kevin publique `/rest/v1/points_balance` y `/rest/v1/points_transactions` |
+| QR personal del cliente | Fran | ✅ Completado | SVG generado server-side con lib `qrcode` desde `profiles.qr_token` (dato real de Supabase) |
 | Vista cajero: registrar consumo | Fran | ⬜ Pendiente | — |
 | Vista cajero: confirmar canje con código | Fran | ⬜ Pendiente | — |
 
@@ -76,6 +76,7 @@
 
 ## Bloqueos activos
 - **⚠️ Kevin: `middleware.ts` usa convención deprecated en Next.js 16.** Renombrar a `proxy.ts` y la función a `proxy`. Ver docs: `node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md`
+- **⚠️ Kevin: agregar `price_override NUMERIC(10,2) NULLABLE` a `time_offer_products`** para que el descuento de precios funcione con datos reales. Ver DEC-020.
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú

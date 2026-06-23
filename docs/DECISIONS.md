@@ -130,11 +130,54 @@
 
 ---
 
-### DEC-015 — Carta pública: categorías como tabs sticky con scroll-to por JS
-- **Decisión:** Tabs de categorías son sticky (top:0) y usan `scrollIntoView({ behavior: 'smooth' })` en `CategoryTabs` (Client Component). Estado activo del tab se maneja por click, no por IntersectionObserver.
-- **Razonamiento:** IntersectionObserver para detectar sección visible agrega complejidad significativa con beneficio marginal en un menú. El tab activo por click es suficiente para la UX del restaurante.
+### DEC-015 — Carta pública: categorías ~~como tabs sticky~~ → menú hamburguesa con drawer
+- **Decisión original (18 jun):** Tabs horizontales sticky con `scrollIntoView`.
+- **Decisión actualizada (23 jun):** Reemplazado por botón hamburguesa (☰) en el header que abre un drawer desde la izquierda. Al seleccionar categoría: cierra el drawer + scrollIntoView con delay de 150ms. `CategoryTabs.tsx` conservado pero sin uso.
+- **Razonamiento del cambio:** El CTO solicitó menú hamburguesa como parte del rediseño UX de la carta. El drawer libera espacio vertical, es más natural en mobile para 5+ categorías y permite descripción de categorías en el futuro.
+- **Tomada por:** CTO (aprobado), Fran (implementado)
+- **Fecha actualización:** 23 de junio de 2026
+
+---
+
+### DEC-016 — QR personal: SVG generado server-side con `qrcode`
+- **Decisión:** El QR del perfil del cliente se genera en el Server Component usando `qrcode.toString(qr_token, { type: 'svg' })` y se renderiza con `dangerouslySetInnerHTML`.
+- **Razonamiento:** Evita bundle JS en el cliente para la generación del QR. El SVG es seguro: generado localmente por la lib `qrcode` con input de UUID `[a-f0-9-]` — no hay user input sin sanitizar. No se usa API externa que exponga el token.
 - **Tomada por:** Fran (Frontend Agent)
-- **Fecha:** 18 de junio de 2026
+- **Fecha:** 22 de junio de 2026
+
+---
+
+### DEC-017 — Perfil del cliente: datos en capas (real + mock)
+- **Decisión:** `/perfil` obtiene `full_name` y `qr_token` de Supabase Auth (datos reales). Saldo de puntos, transacciones y recompensas usan mock data hasta que Kevin publique los endpoints.
+- **Razonamiento:** Permite iterar sobre UX real con el nombre correcto del usuario y un QR funcional, sin bloquear en Kevin. El reemplazo por datos reales es un cambio de 3 líneas cuando API_CONTRACTS.md se actualice.
+- **Integración pendiente:** `points_balance` → `GET /rest/v1/points_balance?client_id=eq.{id}` | `points_transactions` → `GET /rest/v1/points_transactions?client_id=eq.{id}&order=created_at.desc` | `rewards` → `GET /rest/v1/rewards?is_active=eq.true`
+- **Tomada por:** Fran (Frontend Agent)
+- **Fecha:** 22 de junio de 2026
+
+---
+
+### DEC-018 — Perfil del cliente: layout `(cliente)` con auth guard en Server Component
+- **Decisión:** El route group `(cliente)` tiene su propio `layout.tsx` que verifica sesión y rol antes de renderizar cualquier página hija. Logout se implementa como Server Action (no Client Component).
+- **Razonamiento:** Centraliza la protección de rutas del cliente. Server Action para logout evita necesitar `'use client'` en el nav.
+- **Tomada por:** Fran (Frontend Agent)
+- **Fecha:** 22 de junio de 2026
+
+---
+
+### DEC-019 — Carta pública: carrusel de promos con CSS scroll-snap, sin librería
+- **Decisión:** `PromoCarousel.tsx` usa `scroll-snap-type: x mandatory` + `overflow-x: auto` nativo. Sin librería de carrusel. Server Component puro (no necesita estado).
+- **Razonamiento:** El scroll-snap CSS nativo es soporte universal en mobile browsers modernos. Evita JS extra y complejidad de hidratación. Para indicadores de paginación (dots), se puede agregar un Client Component wrapper en el futuro si el cliente lo requiere.
+- **Tomada por:** Fran (Frontend Agent)
+- **Fecha:** 23 de junio de 2026
+
+---
+
+### DEC-020 — Precio con descuento: `price_override` pendiente en schema
+- **Decisión:** Crear tipo UI `TimeOfferProductWithPrice = TimeOfferProduct & { price_override: number | null }` y mock `MOCK_TIME_OFFER_PRODUCTS`. El componente `ProductCard` recibe `ProductWithDiscount = Product & { discount_price: number | null }`. Los descuentos se calculan en `carta/page.tsx` cruzando productos con time offers activas.
+- **⚠️ Kevin debe agregar:** columna `price_override NUMERIC(10,2) NULLABLE` a la tabla `time_offer_products` y exponerla en `GET /rest/v1/time_offer_products`. Sin esto, el descuento de precios solo funciona con mock data.
+- **Razonamiento:** La UI y los tipos están listos. El cambio para conectar datos reales es una sola línea en `carta/page.tsx` (reemplazar `MOCK_TIME_OFFER_PRODUCTS` por query Supabase).
+- **Tomada por:** Fran (Frontend Agent), pendiente Kevin
+- **Fecha:** 23 de junio de 2026
 
 ---
 

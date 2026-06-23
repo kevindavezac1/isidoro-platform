@@ -1,4 +1,4 @@
-import type { Category, Product, Promotion, TimeOffer } from '@/lib/types'
+import type { Category, Product, Promotion, TimeOffer, Profile, PointsBalance, PointsTransaction, Reward, Settings, TimeOfferProductWithPrice } from '@/lib/types'
 
 export const MOCK_CATEGORIES: Category[] = [
   {
@@ -238,5 +238,141 @@ export const MOCK_TIME_OFFERS: TimeOffer[] = [
     is_active: true,
     created_at: '2026-06-01T00:00:00Z',
     updated_at: '2026-06-01T00:00:00Z',
+  },
+]
+
+export const MOCK_PROFILE: Profile = {
+  id: 'user-mock-1',
+  role: 'cliente',
+  full_name: 'María García',
+  phone: null,
+  qr_token: 'a3f8b2c1-d4e5-4f6a-b7c8-d9e0f1a2b3c4',
+  created_at: '2026-04-15T00:00:00Z',
+  updated_at: '2026-06-22T00:00:00Z',
+}
+
+export const MOCK_POINTS_BALANCE: PointsBalance = {
+  id: 'bal-mock-1',
+  client_id: 'user-mock-1',
+  total_points: 127,
+  updated_at: '2026-06-22T00:00:00Z',
+}
+
+export const MOCK_POINTS_TRANSACTIONS: PointsTransaction[] = [
+  {
+    id: 'tx-1',
+    client_id: 'user-mock-1',
+    type: 'consumption',
+    consumption_id: 'cons-1',
+    redemption_id: null,
+    adjusted_by: null,
+    points: 15,
+    expires_at: '2027-06-22T00:00:00Z',
+    created_at: '2026-06-22T12:30:00Z',
+  },
+  {
+    id: 'tx-2',
+    client_id: 'user-mock-1',
+    type: 'consumption',
+    consumption_id: 'cons-2',
+    redemption_id: null,
+    adjusted_by: null,
+    points: 22,
+    expires_at: '2027-06-15T00:00:00Z',
+    created_at: '2026-06-15T20:10:00Z',
+  },
+  {
+    id: 'tx-3',
+    client_id: 'user-mock-1',
+    type: 'redemption',
+    consumption_id: null,
+    redemption_id: 'red-1',
+    adjusted_by: null,
+    points: -50,
+    expires_at: null,
+    created_at: '2026-06-10T19:45:00Z',
+  },
+  {
+    id: 'tx-4',
+    client_id: 'user-mock-1',
+    type: 'consumption',
+    consumption_id: 'cons-3',
+    redemption_id: null,
+    adjusted_by: null,
+    points: 18,
+    expires_at: '2027-06-08T00:00:00Z',
+    created_at: '2026-06-08T21:00:00Z',
+  },
+  {
+    id: 'tx-5',
+    client_id: 'user-mock-1',
+    type: 'consumption',
+    consumption_id: 'cons-4',
+    redemption_id: null,
+    adjusted_by: null,
+    points: 30,
+    expires_at: '2027-05-20T00:00:00Z',
+    created_at: '2026-05-20T13:15:00Z',
+  },
+  {
+    id: 'tx-6',
+    client_id: 'user-mock-1',
+    type: 'manual_adjustment',
+    consumption_id: null,
+    redemption_id: null,
+    adjusted_by: 'admin-1',
+    points: 92,
+    expires_at: '2027-04-15T00:00:00Z',
+    created_at: '2026-04-15T00:00:00Z',
+  },
+]
+
+export const MOCK_REWARDS: Reward[] = [
+  {
+    id: 'reward-1',
+    name: 'Café gratis',
+    description: 'Un espresso o cortado de cortesía',
+    points_cost: 80,
+    stock: null,
+    is_active: true,
+    created_at: '2026-06-01T00:00:00Z',
+    updated_at: '2026-06-01T00:00:00Z',
+  },
+  {
+    id: 'reward-2',
+    name: 'Postre gratis',
+    description: 'Cualquier postre del menú',
+    points_cost: 150,
+    stock: 10,
+    is_active: true,
+    created_at: '2026-06-01T00:00:00Z',
+    updated_at: '2026-06-01T00:00:00Z',
+  },
+  {
+    id: 'reward-3',
+    name: 'Entrada gratis',
+    description: 'Empanadas o provoleta a elección',
+    points_cost: 200,
+    stock: null,
+    is_active: true,
+    created_at: '2026-06-01T00:00:00Z',
+    updated_at: '2026-06-01T00:00:00Z',
+  },
+]
+
+export const MOCK_SETTINGS: Settings = {
+  id: 'settings-1',
+  points_per_peso: 1,
+  timezone: 'America/Argentina/Buenos_Aires',
+  updated_at: '2026-06-01T00:00:00Z',
+}
+
+// price_override: Kevin needs to add this column to time_offer_products — see DEC-019
+export const MOCK_TIME_OFFER_PRODUCTS: TimeOfferProductWithPrice[] = [
+  {
+    id: 'top-1',
+    time_offer_id: 'offer-1',
+    product_id: 'prod-13',  // Vino de la casa (copa) — $3.500
+    price_override: 1750,   // Happy Hour: 50% off
   },
 ]
