@@ -35,7 +35,7 @@ export default async function ClienteLayout({
         style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
       >
         <span
-          className="text-lg font-semibold tracking-tight"
+          className="text-xl font-bold tracking-tight font-display"
           style={{ color: 'var(--brand)' }}
         >
           Isidoro

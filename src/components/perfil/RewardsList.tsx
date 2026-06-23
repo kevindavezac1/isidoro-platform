@@ -32,7 +32,7 @@ export function RewardsList({ rewards, totalPoints }: Props) {
               className="text-xs font-semibold px-2 py-1 rounded-full shrink-0 ml-3"
               style={{
                 background: 'var(--brand)',
-                color: '#FFFFFF',
+                color: 'var(--background)',
               }}
             >
               {reward.points_cost} pts

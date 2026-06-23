@@ -108,7 +108,10 @@ export default async function CartaPage() {
           <CategoryMenu categories={categories} />
 
           <div className="text-center">
-            <h1 className="text-lg font-bold tracking-tight" style={{ color: 'var(--foreground)' }}>
+            <h1
+              className="text-xl font-bold tracking-tight font-display"
+              style={{ color: 'var(--brand)' }}
+            >
               Isidoro
             </h1>
           </div>
@@ -156,7 +159,7 @@ export default async function CartaPage() {
               className="scroll-mt-16"
             >
               <h2
-                className="px-4 pb-3 pt-6 text-lg font-semibold"
+                className="px-4 pb-3 pt-6 text-xl font-semibold font-display"
                 style={{ color: 'var(--foreground)' }}
               >
                 {category.name}

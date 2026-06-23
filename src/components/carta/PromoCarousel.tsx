@@ -63,7 +63,7 @@ export function PromoCarousel({ slides }: PromoCarouselProps) {
             <div className="p-3">
               <span
                 className="inline-block rounded-full px-2.5 py-0.5 text-xs font-bold mb-2"
-                style={{ background: 'var(--brand)', color: '#fff' }}
+                style={{ background: 'var(--brand)', color: 'var(--background)' }}
               >
                 {slide.badge}
               </span>

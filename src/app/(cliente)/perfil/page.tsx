@@ -48,7 +48,7 @@ export default async function PerfilPage() {
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
           Bienvenido de vuelta
         </p>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-2xl font-semibold tracking-tight font-display">
           {profile?.full_name ?? 'Cliente'}
         </h1>
       </div>

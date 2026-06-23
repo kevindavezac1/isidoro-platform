@@ -52,7 +52,7 @@ export function ProductCard({ product, pointsPerPeso }: ProductCardProps) {
           {!unavailable && hasDiscount && (
             <span
               className="shrink-0 rounded-full px-2 py-0.5 text-xs font-bold"
-              style={{ background: 'var(--brand)', color: '#fff' }}
+              style={{ background: 'var(--brand)', color: 'var(--background)' }}
             >
               PROMO
             </span>
