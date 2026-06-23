@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 23 de junio de 2026 — Frontend Agent (Fran) — sesión 7
+**Última actualización:** 23 de junio de 2026 — Frontend Agent (Fran) — sesión 8
 **Estado general:** EN CURSO — Semana 1
 **Semana actual:** 1 de 4
 **Riesgo de plazo:** Bajo
@@ -56,7 +56,7 @@
 | Confirmación de canje por cajero | Kevin | ⬜ Pendiente | ⚠️ Transacción atómica obligatoria |
 | Perfil del cliente (historial, saldo de puntos) | Fran | ✅ Completado | Mock data. Reemplazar cuando Kevin publique `/rest/v1/points_balance` y `/rest/v1/points_transactions` |
 | QR personal del cliente | Fran | ✅ Completado | SVG generado server-side con lib `qrcode` desde `profiles.qr_token` (dato real de Supabase) |
-| Vista cajero: registrar consumo | Fran | ⬜ Pendiente | — |
+| Vista cajero: registrar consumo | Fran | ✅ Completado | `/caja`: búsqueda por QR/nombre, card cliente con saldo, form con preview de puntos en tiempo real. Route group `(cajero)` con layout propio. |
 | Vista cajero: confirmar canje con código | Fran | ⬜ Pendiente | — |
 
 ### Semana 4 — División de cuenta + estadísticas + QA
