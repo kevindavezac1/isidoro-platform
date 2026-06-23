@@ -1,4 +1,4 @@
-import type { Category, Product, Promotion, TimeOffer, Profile, PointsBalance, PointsTransaction, Reward, Settings, TimeOfferProduct } from '@/lib/types'
+import type { Category, Product, Promotion, TimeOffer, Profile, PointsBalance, PointsTransaction, Reward, Settings, TimeOfferProduct, ClientWithBalance, Consumption } from '@/lib/types'
 
 export const MOCK_CATEGORIES: Category[] = [
   {
@@ -373,5 +373,132 @@ export const MOCK_TIME_OFFER_PRODUCTS: TimeOfferProduct[] = [
     time_offer_id: 'offer-1',
     product_id: 'prod-13',  // Vino de la casa (copa) — $3.500
     price_override: 1750,   // Happy Hour: 50% off
+  },
+]
+
+export const MOCK_CLIENTS: ClientWithBalance[] = [
+  {
+    id: 'client-1',
+    role: 'cliente',
+    full_name: 'María García',
+    email: 'maria.garcia@gmail.com',
+    phone: '+54 9 11 5555-1234',
+    qr_token: 'a3f8b2c1-d4e5-4f6a-b7c8-d9e0f1a2b3c4',
+    created_at: '2026-04-15T00:00:00Z',
+    updated_at: '2026-06-22T00:00:00Z',
+    balance: { id: 'bal-1', client_id: 'client-1', total_points: 127, updated_at: '2026-06-22T00:00:00Z' },
+  },
+  {
+    id: 'client-2',
+    role: 'cliente',
+    full_name: 'Carlos Méndez',
+    email: 'carlosmendez@hotmail.com',
+    phone: null,
+    qr_token: 'b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e',
+    created_at: '2026-05-02T00:00:00Z',
+    updated_at: '2026-06-20T00:00:00Z',
+    balance: { id: 'bal-2', client_id: 'client-2', total_points: 340, updated_at: '2026-06-20T00:00:00Z' },
+  },
+  {
+    id: 'client-3',
+    role: 'cliente',
+    full_name: 'Laura Fernández',
+    email: 'laura.f@gmail.com',
+    phone: '+54 9 11 4444-5678',
+    qr_token: 'c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f',
+    created_at: '2026-05-20T00:00:00Z',
+    updated_at: '2026-06-18T00:00:00Z',
+    balance: { id: 'bal-3', client_id: 'client-3', total_points: 55, updated_at: '2026-06-18T00:00:00Z' },
+  },
+  {
+    id: 'client-4',
+    role: 'cliente',
+    full_name: 'Tomás Reyes',
+    email: 'tomireyes@yahoo.com.ar',
+    phone: null,
+    qr_token: 'd3e4f5a6-b7c8-4d9e-0f1a-2b3c4d5e6f7a',
+    created_at: '2026-06-10T00:00:00Z',
+    updated_at: '2026-06-21T00:00:00Z',
+    balance: null,
+  },
+  {
+    id: 'client-5',
+    role: 'cliente',
+    full_name: 'Valentina Sosa',
+    email: 'valen.sosa@outlook.com',
+    phone: '+54 9 351 333-9999',
+    qr_token: 'e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b',
+    created_at: '2026-06-01T00:00:00Z',
+    updated_at: '2026-06-23T00:00:00Z',
+    balance: { id: 'bal-5', client_id: 'client-5', total_points: 890, updated_at: '2026-06-23T00:00:00Z' },
+  },
+]
+
+export const MOCK_CLIENT_CONSUMPTIONS: Consumption[] = [
+  {
+    id: 'cons-a1',
+    client_id: 'client-1',
+    cashier_id: 'admin-1',
+    amount: 15000,
+    points_earned: 15,
+    notes: null,
+    session_id: null,
+    consumed_at: '2026-06-22T12:30:00Z',
+    created_at: '2026-06-22T12:30:00Z',
+  },
+  {
+    id: 'cons-a2',
+    client_id: 'client-1',
+    cashier_id: 'admin-1',
+    amount: 22000,
+    points_earned: 22,
+    notes: 'Mesa familiar, aniversario',
+    session_id: null,
+    consumed_at: '2026-06-15T20:10:00Z',
+    created_at: '2026-06-15T20:10:00Z',
+  },
+  {
+    id: 'cons-a3',
+    client_id: 'client-1',
+    cashier_id: 'admin-1',
+    amount: 8500,
+    points_earned: 8,
+    notes: null,
+    session_id: null,
+    consumed_at: '2026-06-05T14:00:00Z',
+    created_at: '2026-06-05T14:00:00Z',
+  },
+  {
+    id: 'cons-b1',
+    client_id: 'client-2',
+    cashier_id: 'admin-1',
+    amount: 45000,
+    points_earned: 45,
+    notes: 'Evento corporativo',
+    session_id: null,
+    consumed_at: '2026-06-20T19:00:00Z',
+    created_at: '2026-06-20T19:00:00Z',
+  },
+  {
+    id: 'cons-b2',
+    client_id: 'client-2',
+    cashier_id: 'admin-1',
+    amount: 18000,
+    points_earned: 18,
+    notes: null,
+    session_id: null,
+    consumed_at: '2026-06-12T21:30:00Z',
+    created_at: '2026-06-12T21:30:00Z',
+  },
+  {
+    id: 'cons-e1',
+    client_id: 'client-5',
+    cashier_id: 'admin-1',
+    amount: 120000,
+    points_earned: 120,
+    notes: 'Cena de empresa, 12 personas',
+    session_id: null,
+    consumed_at: '2026-06-23T21:00:00Z',
+    created_at: '2026-06-23T21:00:00Z',
   },
 ]

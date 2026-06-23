@@ -50,3 +50,8 @@ export type PromoSlide = {
   price: number | null
   originalPrice: number | null
 }
+
+export type ClientWithBalance = Profile & {
+  balance: PointsBalance | null
+  email: string
+}
