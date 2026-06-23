@@ -68,7 +68,7 @@
 | Endpoints de reportes y estadísticas | Kevin | ⬜ Pendiente | — |
 | UI división de cuenta | Fran | ⬜ Pendiente | — |
 | Dashboard de estadísticas | Fran | ⬜ Pendiente | — |
-| Panel admin: búsqueda y gestión de clientes | Fran | ⬜ Pendiente | — |
+| Panel admin: búsqueda y gestión de clientes | Fran | ✅ Completado | Buscador por nombre/email (debounce URL), tabla con puntos, detalle con historial de consumos + form ajuste manual de puntos. |
 | QA completo de todos los flujos | Kevin + Fran | ⬜ Pendiente | — |
 | Deploy a producción | Kevin + Fran | ⬜ Pendiente | — |
 
