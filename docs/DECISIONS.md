@@ -119,6 +119,16 @@
 
 ---
 
+### DEC-014 — Migración de middleware.ts a proxy.ts (Next.js 16)
+- **Decisión:** Renombrar `src/middleware.ts` → `src/proxy.ts` y el export `middleware()` → `proxy()` usando el codemod oficial de Next.js.
+- **Razonamiento:** Next.js 16 deprecó la convención `middleware` en favor de `proxy`. La funcionalidad es idéntica — solo cambia el nombre del archivo y del export. Usar el codemod oficial garantiza que el rename sea correcto y compatible con versiones futuras.
+- **Cómo se migró:** `npx @next/codemod@canary middleware-to-proxy .`
+- **Implicación para Fran:** Si tenés imports o referencias a `middleware` en tu código, renombrá a `proxy`. No hay cambio de comportamiento.
+- **Tomada por:** Kevin (Backend Agent)
+- **Fecha:** 20 de junio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 *No hay decisiones abiertas por el momento.*
