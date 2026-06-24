@@ -29,7 +29,7 @@ export default async function LoginPage({
       .select('role')
       .eq('id', user.id)
       .single()
-    redirect(ROLE_ROUTES[profile?.role ?? ''] ?? '/perfil')
+    redirect(ROLE_ROUTES[profile?.role ?? ''] ?? '/carta')
   }
 
   const { error } = await searchParams

@@ -27,7 +27,10 @@ export default async function ClienteLayout({
     .eq('id', user.id)
     .single()
 
-  if (!profile || profile.role !== 'cliente') redirect('/login')
+  if (!profile) redirect('/login')
+  if (profile.role === 'admin') redirect('/admin')
+  if (profile.role === 'cajero') redirect('/caja')
+  if (profile.role !== 'cliente') redirect('/login')
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>

@@ -32,11 +32,13 @@ export default async function PerfilPage() {
   const transactions = MOCK_POINTS_TRANSACTIONS
   const rewards = MOCK_REWARDS
 
-  const qrSvg = await QRCode.toString(profile?.qr_token ?? '', {
-    type: 'svg',
-    margin: 1,
-    color: { dark: '#1C1917', light: '#FFFFFF' },
-  })
+  const qrSvg = profile?.qr_token
+    ? await QRCode.toString(profile.qr_token, {
+        type: 'svg',
+        margin: 1,
+        color: { dark: '#1C1917', light: '#FFFFFF' },
+      })
+    : null
 
   const affordableRewards = rewards.filter(
     (r) => r.is_active && balance.total_points >= r.points_cost,
