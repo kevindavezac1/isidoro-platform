@@ -1,9 +1,9 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 23 de junio de 2026 — Frontend Agent (Fran) — sesión 8
-**Estado general:** EN CURSO — Semana 1
-**Semana actual:** 1 de 4
+**Última actualización:** 24 de junio de 2026 — CTO Agent (unificación feature/backend + feature/frontend)
+**Estado general:** EN CURSO — Semana 4 (backend completo, frontend avanzado)
+**Semana actual:** 4 de 4
 **Riesgo de plazo:** Bajo
 
 ---
@@ -14,8 +14,8 @@
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| Setup Supabase + proyecto | Kevin | ✅ Completado | Proyecto creado, CLI instalado |
-| Esquema de base de datos | Kevin | ✅ Completado | 11 tablas + trigger handle_new_user en prod |
+| Setup Supabase + proyecto | Kevin | ✅ Completado | Proyecto creado, org devsolutions2, región São Paulo |
+| Esquema de base de datos | Kevin | ✅ Completado | 12 tablas + RLS en todas + índices + trigger handle_new_user |
 | Auth: email/password | Kevin | ✅ Completado | Supabase Auth activo + trigger crea perfil automáticamente |
 | Auth: Google OAuth | Kevin | ✅ Completado | Credenciales configuradas en Google Cloud Console y Supabase Dashboard |
 | RLS base (roles: cliente, cajero, admin) | Kevin | ✅ Completado | Policies activas en todas las tablas |
@@ -28,44 +28,44 @@
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| Login email/password + Google OAuth | Fran | ✅ Completado | Redirect por rol. Ruta `/auth/callback` para OAuth. |
+| Login email/password + Google OAuth | Fran | ✅ Completado | Redirect por rol. Ruta `/auth/callback` para OAuth. Validado con usuario real (Francisco Bonfanti) |
 | Registro email/password + Google OAuth | Fran | ✅ Completado | `full_name` en `options.data`. Maneja email confirm + auto-login. |
 
 ### Semana 2 — Carta digital + gestión de productos
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| API productos (CRUD) | Kevin | ⬜ Pendiente | Desbloquea trabajo de Fran |
-| API categorías (CRUD) | Kevin | ⬜ Pendiente | — |
-| API promociones con fechas | Kevin | ⬜ Pendiente | — |
-| API ofertas por horario + activación automática | Kevin | ⬜ Pendiente | ⚠️ Riesgo: zona horaria |
-| Carta pública con datos reales + categorías | Fran | ⬜ Pendiente | Depende de API productos |
+| API productos (CRUD) | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
+| API categorías (CRUD) | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
+| API promociones con fechas | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
+| API ofertas por horario | Kevin | ✅ Completado | PostgREST + activación en cliente (DEC-013) |
+| Carta pública con datos reales + categorías | Fran | ⬜ Pendiente | Depende de integración con endpoints reales de Kevin |
 | Panel admin: gestión de productos | Fran | ✅ Completado | CRUD completo con mock. Server Actions listas para reemplazar con Supabase. |
 | Panel admin: gestión de categorías | Fran | ✅ Completado | CRUD completo con mock. Muestra conteo de productos por categoría. |
 | Panel admin: promociones y ofertas por horario | Fran | ✅ Completado | CRUD completo con mock. PromoForm con datetime-local, TimeOfferForm con product associations + price_override. |
-| QR dinámico funcional | Fran | ✅ Completado | Mismo QR del perfil: SVG server-side desde `profiles.qr_token` real |
+| QR dinámico funcional | Fran | ✅ Completado | SVG server-side desde `profiles.qr_token` real |
 
 ### Semana 3 — Sistema de puntos + caja
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| Lógica de acreditación de puntos | Kevin | ⬜ Pendiente | Equivalencia configurable |
-| Vencimiento de puntos (FIFO, 12 meses) | Kevin | ⬜ Pendiente | ⚠️ Debe ser atómico |
-| Recompensas con stock opcional | Kevin | ⬜ Pendiente | — |
-| Generación de código de canje (6 dígitos) | Kevin | ⬜ Pendiente | — |
-| Confirmación de canje por cajero | Kevin | ⬜ Pendiente | ⚠️ Transacción atómica obligatoria |
-| Perfil del cliente (historial, saldo de puntos) | Fran | ✅ Completado | Mock data. Reemplazar cuando Kevin publique `/rest/v1/points_balance` y `/rest/v1/points_transactions` |
-| QR personal del cliente | Fran | ✅ Completado | SVG generado server-side con lib `qrcode` desde `profiles.qr_token` (dato real de Supabase) |
-| Vista cajero: registrar consumo | Fran | ✅ Completado | `/caja`: búsqueda por QR/nombre, card cliente con saldo, form con preview de puntos en tiempo real. Route group `(cajero)` con layout propio. |
-| Vista cajero: confirmar canje con código | Fran | ⬜ Pendiente | — |
+| Lógica de acreditación de puntos | Kevin | ✅ Completado | register_consumption SQL fn — atómico |
+| Vencimiento de puntos (FIFO, 12 meses) | Kevin | ✅ Completado | FIFO en confirm_redemption + expires_at en créditos |
+| Recompensas con stock opcional | Kevin | ✅ Completado | PostgREST + stock decrementado en confirm_redemption |
+| Generación de código de canje (6 dígitos) | Kevin | ✅ Completado | Edge Fn initiate-redemption — crypto.getRandomValues |
+| Confirmación de canje por cajero | Kevin | ✅ Completado | Edge Fn confirm-redemption — SQL atómica con FOR UPDATE |
+| Perfil del cliente (historial, saldo de puntos) | Fran | ✅ Completado | Mock data. Reemplazar cuando Kevin integre endpoints reales. |
+| QR personal del cliente | Fran | ✅ Completado | SVG generado server-side con lib `qrcode` desde `profiles.qr_token` |
+| Vista cajero: registrar consumo | Fran | ✅ Completado | `/caja`: búsqueda por QR/nombre, card cliente con saldo, form con preview de puntos en tiempo real. |
+| Vista cajero: confirmar canje con código | Fran | ⬜ Pendiente | Mock pendiente |
 
 ### Semana 4 — División de cuenta + estadísticas + QA
 
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
-| División de cuenta (lógica proporcional) | Kevin | ⬜ Pendiente | — |
-| Ajuste manual de puntos (admin) | Kevin | ⬜ Pendiente | — |
-| Endpoints de reportes y estadísticas | Kevin | ⬜ Pendiente | — |
+| División de cuenta (lógica proporcional) | Kevin | ✅ Completado | Edge Fn split-consumption — SQL atómica, session_id server-side |
+| Ajuste manual de puntos (admin) | Kevin | ✅ Completado | Edge Fn adjust-points + SQL fn adjust_points — atómico, solo admin |
+| Endpoints de reportes y estadísticas | Kevin | ✅ Completado | Edge Fn reports — 4 SQL fns en paralelo, solo admin |
 | UI división de cuenta | Fran | ⬜ Pendiente | — |
 | Dashboard de estadísticas | Fran | ⬜ Pendiente | — |
 | Panel admin: búsqueda y gestión de clientes | Fran | ✅ Completado | Buscador por nombre/email (debounce URL), tabla con puntos, detalle con historial de consumos + form ajuste manual de puntos. |
@@ -75,16 +75,20 @@
 ---
 
 ## Bloqueos activos
-- **⚠️ Kevin: `middleware.ts` usa convención deprecated en Next.js 16.** Renombrar a `proxy.ts` y la función a `proxy`. Ver docs: `node_modules/next/dist/docs/01-app/02-guides/upgrading/version-16.md`
-- ~~**Kevin: agregar `price_override` a `time_offer_products`**~~ ✅ Resuelto — migración `20260623000000` aplicada, `database.types.ts` actualizado.
+_Ninguno crítico. El backend de Kevin está 100% completo. Fran puede integrar datos reales en cualquier momento._
+
+## Integración pendiente (Fran reemplaza mocks por datos reales)
+- Carta pública → endpoints productos, categorías, time_offers, promotions
+- Perfil cliente → `/rest/v1/points_balance` y `/rest/v1/points_transactions`
+- Vista cajero → Edge Fn `register-consumption` y `confirm-redemption`
+- Dashboard → Edge Fn `reports`
+- División de cuenta → Edge Fn `split-consumption`
 
 ## Pendientes del cliente (Restaurante Isidoro)
 - [ ] Fotos de todos los productos del menú
 - [ ] Nombre, descripción y precio de cada producto
 - [ ] Categorías del menú (ej: entradas, principales, postres, bebidas)
-- [ ] Logo del restaurante en alta resolución
 - [ ] Datos del administrador principal (email para crear cuenta admin)
-- [ ] Zona horaria del restaurante (para ofertas por horario)
 - [ ] Dominio web contratado y apuntado
 
 ## Decisiones tomadas

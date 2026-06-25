@@ -38,20 +38,87 @@ export type ConsumptionWithClient = Consumption & {
 // Roles
 export type UserRole = Profile['role']
 
-export type ProductWithDiscount = Product & {
-  discount_price: number | null
+// Tipos de response de Edge Functions
+export type RegisterConsumptionResponse = {
+  consumption_id: string
+  points_earned:  number
+  new_balance:    number
 }
 
-export type PromoSlide = {
-  id: string
-  badge: 'AHORA' | 'PROMO'
-  title: string
-  description: string | null
-  price: number | null
-  originalPrice: number | null
+export type InitiateRedemptionResponse = {
+  redemption_id: string
+  code:          string
+  expires_at:    string
 }
 
-export type ClientWithBalance = Profile & {
-  balance: PointsBalance | null
-  email: string
+export type ConfirmRedemptionResponse = {
+  redemption_id:      string
+  client_id:          string
+  reward_name:        string
+  points_used:        number
+  client_new_balance: number
+}
+
+export type SplitConsumptionEntry = {
+  client_id:      string
+  consumption_id: string
+  points_earned:  number
+  new_balance:    number
+}
+
+export type SplitConsumptionResponse = {
+  session_id: string
+  splits:     SplitConsumptionEntry[]
+}
+
+export type ReportSummary = {
+  total_revenue:         number
+  total_consumptions:    number
+  unique_clients:        number
+  total_points_credited: number
+  total_points_redeemed: number
+}
+
+export type ReportConsumptionByDay = {
+  date:         string
+  count:        number
+  total_amount: number
+  points_earned: number
+}
+
+export type ReportTopClient = {
+  client_id:           string
+  full_name:           string
+  visit_count:         number
+  total_spent:         number
+  total_points_earned: number
+}
+
+export type ReportTopReward = {
+  reward_id:         string
+  reward_name:       string
+  redemption_count:  number
+  total_points_used: number
+}
+
+export type ReportsResponse = {
+  period: {
+    from:     string
+    to:       string
+    timezone: string
+  }
+  summary:             ReportSummary
+  consumptions_by_day: ReportConsumptionByDay[]
+  top_clients:         ReportTopClient[]
+  top_rewards:         ReportTopReward[]
+}
+
+// Error de Edge Function
+export type EdgeFunctionError = {
+  error:     string
+  code:      string
+  available?: number
+  required?:  number
+  sum?:       number
+  expected?:  number
 }
