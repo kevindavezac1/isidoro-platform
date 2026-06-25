@@ -155,12 +155,12 @@ export default async function CartaPage() {
               className="scroll-mt-16"
             >
               <h2
-                className="px-4 pb-3 pt-6 text-xl font-semibold font-display"
+                className="px-4 pb-4 pt-10 text-2xl font-semibold font-display"
                 style={{ color: 'var(--foreground)' }}
               >
                 {category.name}
               </h2>
-              <div className="flex flex-col gap-3 px-4">
+              <div className="flex flex-col gap-4 px-4">
                 {categoryProducts.map((product) => (
                   <ProductCard
                     key={product.id}

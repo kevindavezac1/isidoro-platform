@@ -38,10 +38,10 @@ export function ProductCard({ product, pointsPerPeso }: ProductCardProps) {
       <div
         className="flex shrink-0 items-center justify-center"
         style={{
-          width: 96,
-          height: 96,
+          width: 108,
+          height: 108,
           background: 'var(--surface-alt)',
-          borderRadius: 12,
+          borderRadius: 8,
         }}
       >
         <ImagePlaceholder />
@@ -49,7 +49,7 @@ export function ProductCard({ product, pointsPerPeso }: ProductCardProps) {
 
       <div className="flex min-w-0 flex-1 flex-col justify-center py-3 pr-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-sm font-semibold leading-tight text-foreground">
+          <h3 className="text-base font-semibold leading-tight" style={{ color: '#f5efe6' }}>
             {product.name}
           </h3>
           {unavailable && (
@@ -68,13 +68,16 @@ export function ProductCard({ product, pointsPerPeso }: ProductCardProps) {
         </div>
 
         {product.description && (
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-text-muted">
+          <p
+            className="mt-1 line-clamp-2 text-xs leading-relaxed"
+            style={{ color: 'rgba(245,239,230,0.50)' }}
+          >
             {product.description}
           </p>
         )}
 
         <div className="mt-2 flex items-baseline gap-2">
-          <p className="text-sm font-bold text-brand">
+          <p className="text-base font-bold" style={{ color: '#ca9e69' }}>
             {formatARS(displayPrice)}
           </p>
           {hasDiscount && (
