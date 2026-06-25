@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MOCK_PROMOTIONS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { PromoForm } from '@/components/admin/PromoForm'
 import { updatePromotion } from '@/lib/actions/admin-promotions'
 
@@ -13,7 +13,14 @@ export default async function EditarPromocionPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const promo = MOCK_PROMOTIONS.find((p) => p.id === id)
+  const supabase = await createClient()
+
+  const { data: promo } = await supabase
+    .from('promotions')
+    .select('*')
+    .eq('id', id)
+    .single()
+
   if (!promo) notFound()
 
   return (

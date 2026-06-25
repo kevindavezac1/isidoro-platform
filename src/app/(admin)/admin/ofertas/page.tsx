@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { MOCK_TIME_OFFERS, MOCK_TIME_OFFER_PRODUCTS, MOCK_PRODUCTS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { SuccessBanner } from '@/components/admin/SuccessBanner'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { deleteTimeOffer } from '@/lib/actions/admin-time-offers'
@@ -14,9 +14,13 @@ export default async function OfertasPage({
 }) {
   const { success } = await searchParams
 
-  const offers = [...MOCK_TIME_OFFERS].sort((a, b) =>
-    a.start_time.localeCompare(b.start_time),
-  )
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('time_offers')
+    .select('*, time_offer_products(product_id, products(name))')
+    .order('start_time', { ascending: true })
+
+  const offers = data ?? []
 
   return (
     <div>
@@ -60,12 +64,9 @@ export default async function OfertasPage({
             </thead>
             <tbody>
               {offers.map((offer, i) => {
-                const associations = MOCK_TIME_OFFER_PRODUCTS.filter(
-                  (top) => top.time_offer_id === offer.id,
-                )
-                const productNames = associations
-                  .map((a) => MOCK_PRODUCTS.find((p) => p.id === a.product_id)?.name)
-                  .filter(Boolean)
+                const productNames = (offer.time_offer_products ?? [])
+                  .map((a: { products: { name: string } | null }) => a.products?.name)
+                  .filter(Boolean) as string[]
 
                 return (
                   <tr

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { MOCK_PROMOTIONS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { SuccessBanner } from '@/components/admin/SuccessBanner'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { deletePromotion } from '@/lib/actions/admin-promotions'
@@ -30,9 +30,14 @@ export default async function PromocionesPage({
   searchParams: Promise<{ success?: string }>
 }) {
   const { success } = await searchParams
-  const promos = [...MOCK_PROMOTIONS].sort(
-    (a, b) => new Date(b.valid_from).getTime() - new Date(a.valid_from).getTime(),
-  )
+
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('promotions')
+    .select('*')
+    .order('valid_from', { ascending: false })
+
+  const promos = data ?? []
 
   return (
     <div>

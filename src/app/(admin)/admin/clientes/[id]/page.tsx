@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MOCK_CLIENTS, MOCK_CLIENT_CONSUMPTIONS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { PointsAdjustForm } from '@/components/admin/PointsAdjustForm'
 import { adjustPoints } from '@/lib/actions/admin-clients'
 import { SuccessBanner } from '@/components/admin/SuccessBanner'
@@ -37,22 +37,27 @@ export default async function ClienteDetallePage({
   const { id } = await params
   const { success } = await searchParams
 
-  const client = MOCK_CLIENTS.find((c) => c.id === id)
+  const supabase = await createClient()
+
+  const [{ data: client }, { data: balance }, { data: consumptions }] = await Promise.all([
+    supabase.from('profiles').select('id, full_name, phone, created_at').eq('id', id).single(),
+    supabase.from('points_balance').select('total_points').eq('client_id', id).single(),
+    supabase
+      .from('consumptions')
+      .select('id, amount, points_earned, notes, consumed_at')
+      .eq('client_id', id)
+      .order('consumed_at', { ascending: false }),
+  ])
+
   if (!client) notFound()
 
-  const consumptions = MOCK_CLIENT_CONSUMPTIONS.filter(
-    (c) => c.client_id === id,
-  ).sort((a, b) => new Date(b.consumed_at).getTime() - new Date(a.consumed_at).getTime())
-
-  const totalSpent = consumptions.reduce((acc, c) => acc + c.amount, 0)
+  const consumptionList = consumptions ?? []
+  const totalSpent = consumptionList.reduce((acc, c) => acc + c.amount, 0)
 
   return (
     <div>
-      {success === 'adjusted' && (
-        <SuccessBanner type="updated" />
-      )}
+      {success === 'adjusted' && <SuccessBanner type="updated" />}
       <div className="px-8 py-6 space-y-8">
-        {/* Back */}
         <Link
           href="/admin/clientes"
           className="text-xs inline-block transition-opacity hover:opacity-70"
@@ -61,7 +66,6 @@ export default async function ClienteDetallePage({
           ← Volver a clientes
         </Link>
 
-        {/* Header */}
         <div className="flex items-start justify-between">
           <div>
             <h1
@@ -70,26 +74,23 @@ export default async function ClienteDetallePage({
             >
               {client.full_name}
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {client.email}
-              {client.phone && ` · ${client.phone}`}
-            </p>
+            {client.phone && (
+              <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                {client.phone}
+              </p>
+            )}
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
               Cliente desde {formatDate(client.created_at)}
             </p>
           </div>
 
-          {/* Stats */}
           <div className="flex gap-4">
             <div
               className="rounded-xl px-5 py-3 text-center"
               style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
             >
-              <p
-                className="text-2xl font-bold tabular-nums"
-                style={{ color: 'var(--brand)' }}
-              >
-                {client.balance?.total_points ?? 0}
+              <p className="text-2xl font-bold tabular-nums" style={{ color: 'var(--brand)' }}>
+                {balance?.total_points ?? 0}
               </p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 puntos
@@ -99,11 +100,8 @@ export default async function ClienteDetallePage({
               className="rounded-xl px-5 py-3 text-center"
               style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
             >
-              <p
-                className="text-2xl font-bold tabular-nums"
-                style={{ color: 'var(--foreground)' }}
-              >
-                {consumptions.length}
+              <p className="text-2xl font-bold tabular-nums" style={{ color: 'var(--foreground)' }}>
+                {consumptionList.length}
               </p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                 visitas
@@ -113,10 +111,7 @@ export default async function ClienteDetallePage({
               className="rounded-xl px-5 py-3 text-center"
               style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
             >
-              <p
-                className="text-lg font-bold tabular-nums"
-                style={{ color: 'var(--foreground)' }}
-              >
+              <p className="text-lg font-bold tabular-nums" style={{ color: 'var(--foreground)' }}>
                 {formatARS(totalSpent)}
               </p>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
@@ -126,13 +121,12 @@ export default async function ClienteDetallePage({
           </div>
         </div>
 
-        {/* Historial de consumos */}
         <section>
           <h2 className="text-base font-semibold mb-3" style={{ color: 'var(--foreground)' }}>
             Historial de consumos
           </h2>
 
-          {consumptions.length === 0 ? (
+          {consumptionList.length === 0 ? (
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
               Sin consumos registrados.
             </p>
@@ -161,7 +155,7 @@ export default async function ClienteDetallePage({
                   </tr>
                 </thead>
                 <tbody>
-                  {consumptions.map((c, i) => (
+                  {consumptionList.map((c, i) => (
                     <tr
                       key={c.id}
                       style={{
@@ -195,7 +189,6 @@ export default async function ClienteDetallePage({
           )}
         </section>
 
-        {/* Ajuste manual de puntos */}
         <section>
           <h2 className="text-base font-semibold mb-1" style={{ color: 'var(--foreground)' }}>
             Ajuste manual de puntos

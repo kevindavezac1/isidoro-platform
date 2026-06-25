@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { MOCK_CLIENTS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { ClientSearch } from '@/components/admin/ClientSearch'
 import { Suspense } from 'react'
 
@@ -22,13 +22,28 @@ export default async function ClientesPage({
   const { q } = await searchParams
   const query = q?.trim().toLowerCase() ?? ''
 
-  const clients = MOCK_CLIENTS.filter((c) => {
-    if (!query) return true
-    return (
-      c.full_name.toLowerCase().includes(query) ||
-      c.email.toLowerCase().includes(query)
-    )
-  }).sort((a, b) => a.full_name.localeCompare(b.full_name, 'es'))
+  const supabase = await createClient()
+
+  const [{ data: profiles }, { data: balances }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, phone, created_at')
+      .eq('role', 'cliente')
+      .order('full_name', { ascending: true }),
+    supabase.from('points_balance').select('client_id, total_points'),
+  ])
+
+  const balanceMap = new Map((balances ?? []).map((b) => [b.client_id, b.total_points]))
+
+  const clients = (profiles ?? [])
+    .map((p) => ({ ...p, total_points: balanceMap.get(p.id) ?? null }))
+    .filter((c) => {
+      if (!query) return true
+      return (
+        c.full_name.toLowerCase().includes(query) ||
+        (c.phone?.toLowerCase().includes(query) ?? false)
+      )
+    })
 
   return (
     <div className="px-8 py-6">
@@ -41,7 +56,7 @@ export default async function ClientesPage({
             Clientes
           </h1>
           <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            {MOCK_CLIENTS.length} clientes registrados
+            {profiles?.length ?? 0} clientes registrados
           </p>
         </div>
       </div>
@@ -58,7 +73,7 @@ export default async function ClientesPage({
             <tr
               style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}
             >
-              {['Nombre', 'Email', 'Puntos', 'Registrado', ''].map((h) => (
+              {['Nombre', 'Teléfono', 'Puntos', 'Registrado', ''].map((h) => (
                 <th
                   key={h}
                   className={`px-4 py-3 font-medium ${!h ? 'text-right' : 'text-left'}`}
@@ -80,26 +95,21 @@ export default async function ClientesPage({
               >
                 <td className="px-4 py-3 font-medium" style={{ color: 'var(--foreground)' }}>
                   {client.full_name}
-                  {client.phone && (
-                    <p className="text-xs mt-0.5 font-normal" style={{ color: 'var(--text-muted)' }}>
-                      {client.phone}
-                    </p>
-                  )}
                 </td>
 
                 <td className="px-4 py-3" style={{ color: 'var(--text-muted)' }}>
-                  {client.email}
+                  {client.phone ?? '—'}
                 </td>
 
                 <td className="px-4 py-3 tabular-nums">
-                  {client.balance != null ? (
+                  {client.total_points != null ? (
                     <span
                       className="font-semibold"
                       style={{
-                        color: client.balance.total_points >= 100 ? 'var(--brand)' : 'var(--foreground)',
+                        color: client.total_points >= 100 ? 'var(--brand)' : 'var(--foreground)',
                       }}
                     >
-                      {client.balance.total_points} pts
+                      {client.total_points} pts
                     </span>
                   ) : (
                     <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -130,7 +140,8 @@ export default async function ClientesPage({
           <div className="px-8 py-12 text-center" style={{ color: 'var(--text-muted)' }}>
             {query ? (
               <>
-                Sin resultados para <strong style={{ color: 'var(--foreground)' }}>&ldquo;{q}&rdquo;</strong>
+                Sin resultados para{' '}
+                <strong style={{ color: 'var(--foreground)' }}>&ldquo;{q}&rdquo;</strong>
               </>
             ) : (
               'No hay clientes registrados.'

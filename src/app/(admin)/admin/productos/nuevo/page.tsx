@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { MOCK_CATEGORIES } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { ProductForm } from '@/components/admin/ProductForm'
 import { createProduct } from '@/lib/actions/admin-products'
 
 export const metadata: Metadata = { title: 'Nuevo producto — Admin Isidoro' }
 
-export default function NuevoProductoPage() {
-  const categories = MOCK_CATEGORIES
-    .filter((c) => !c.deleted_at)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((c) => ({ id: c.id, name: c.name }))
+export default async function NuevoProductoPage() {
+  const supabase = await createClient()
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('id, name')
+    .order('sort_order', { ascending: true })
 
   return (
     <div className="px-8 py-6">
@@ -26,7 +27,7 @@ export default function NuevoProductoPage() {
           Nuevo producto
         </h1>
       </div>
-      <ProductForm categories={categories} action={createProduct} mode="create" />
+      <ProductForm categories={categories ?? []} action={createProduct} mode="create" />
     </div>
   )
 }

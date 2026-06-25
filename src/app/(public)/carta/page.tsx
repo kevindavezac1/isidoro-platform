@@ -2,19 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { IsidoroLogo } from '@/components/IsidoroLogo'
-import {
-  MOCK_CATEGORIES,
-  MOCK_PRODUCTS,
-  MOCK_PROMOTIONS,
-  MOCK_TIME_OFFERS,
-  MOCK_SETTINGS,
-  MOCK_TIME_OFFER_PRODUCTS,
-} from '@/lib/mock-data'
 import { slugify } from '@/lib/utils'
 import { CategoryMenu } from '@/components/carta/CategoryMenu'
 import { ProductCard } from '@/components/carta/ProductCard'
 import { PromoCarousel } from '@/components/carta/PromoCarousel'
-import type { Promotion, TimeOffer, ProductWithDiscount, PromoSlide } from '@/lib/types'
+import type { Promotion, ProductWithDiscount, PromoSlide } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,8 +14,6 @@ export const metadata: Metadata = {
   title: 'Carta — Isidoro',
   description: 'Menú digital del Restaurante Isidoro',
 }
-
-const RESTAURANT_TZ = 'America/Argentina/Buenos_Aires'
 
 function isPromotionActive(promo: Promotion): boolean {
   const now = new Date()
@@ -34,10 +24,13 @@ function isPromotionActive(promo: Promotion): boolean {
   )
 }
 
-function isTimeOfferActive(offer: TimeOffer): boolean {
+function isTimeOfferActive(
+  offer: { is_active: boolean; start_time: string; end_time: string },
+  timezone: string,
+): boolean {
   if (!offer.is_active) return false
   const nowInTZ = new Date().toLocaleTimeString('en-GB', {
-    timeZone: RESTAURANT_TZ,
+    timeZone: timezone,
     hour12: false,
     hour: '2-digit',
     minute: '2-digit',
@@ -48,37 +41,56 @@ function isTimeOfferActive(offer: TimeOffer): boolean {
 
 export default async function CartaPage() {
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
 
-  const categories = MOCK_CATEGORIES.filter((c) => !c.deleted_at).sort(
-    (a, b) => a.sort_order - b.sort_order,
-  )
-  const products = MOCK_PRODUCTS.filter((p) => !p.deleted_at)
-  const activePromos = MOCK_PROMOTIONS.filter(isPromotionActive)
-  const activeTimeOffers = MOCK_TIME_OFFERS.filter(isTimeOfferActive)
+  const [
+    { data: { user } },
+    { data: settings },
+    { data: categories },
+    { data: products },
+    { data: promotions },
+    { data: timeOffers },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.from('settings').select('points_per_peso, timezone').single(),
+    supabase.from('categories').select('*').order('sort_order', { ascending: true }),
+    supabase
+      .from('products')
+      .select('*, categories(name, sort_order)')
+      .eq('is_available', true)
+      .order('sort_order', { ascending: true }),
+    supabase.from('promotions').select('*').eq('is_active', true),
+    supabase
+      .from('time_offers')
+      .select('*, time_offer_products(product_id, price_override)')
+      .eq('is_active', true),
+  ])
 
-  const pointsPerPeso = MOCK_SETTINGS.points_per_peso
+  const timezone = settings?.timezone ?? 'America/Argentina/Buenos_Aires'
+  const pointsPerPeso = settings?.points_per_peso ?? 1
 
-  // Build discount map from active time offers
-  const activeTimeOfferIds = new Set(activeTimeOffers.map((o) => o.id))
+  const activePromos = (promotions ?? []).filter(isPromotionActive)
+  const activeTimeOffers = (timeOffers ?? []).filter((o) => isTimeOfferActive(o, timezone))
+
+  // Build discount map from embedded time_offer_products (DEC-013)
   const discountMap = new Map<string, number>()
-  for (const top of MOCK_TIME_OFFER_PRODUCTS) {
-    if (activeTimeOfferIds.has(top.time_offer_id) && top.price_override != null) {
-      discountMap.set(top.product_id, top.price_override)
+  for (const offer of activeTimeOffers) {
+    for (const top of offer.time_offer_products ?? []) {
+      if (top.price_override != null) {
+        discountMap.set(top.product_id, top.price_override)
+      }
     }
   }
-  const productsWithDiscount: ProductWithDiscount[] = products.map((p) => ({
+
+  const productsWithDiscount: ProductWithDiscount[] = (products ?? []).map((p) => ({
     ...p,
     discount_price: discountMap.get(p.id) ?? null,
   }))
 
-  // Build carousel slides
   const slides: PromoSlide[] = [
     ...activeTimeOffers.map((offer): PromoSlide => {
-      const top = MOCK_TIME_OFFER_PRODUCTS.find((t) => t.time_offer_id === offer.id)
-      const product = top ? products.find((p) => p.id === top.product_id) : null
+      const tops = offer.time_offer_products ?? []
+      const top = tops[0] ?? null
+      const product = top ? (products ?? []).find((p) => p.id === top.product_id) : null
       return {
         id: offer.id,
         badge: 'AHORA',
@@ -106,7 +118,7 @@ export default async function CartaPage() {
         style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}
       >
         <div className="flex items-center justify-between px-3 py-3">
-          <CategoryMenu categories={categories} />
+          <CategoryMenu categories={categories ?? []} />
 
           <div className="flex items-center justify-center">
             <IsidoroLogo height={48} />
@@ -136,12 +148,10 @@ export default async function CartaPage() {
         </div>
       </header>
 
-      {/* Promo carousel */}
       {slides.length > 0 && <PromoCarousel slides={slides} />}
 
-      {/* Products */}
       <main className="pb-10">
-        {categories.map((category) => {
+        {(categories ?? []).map((category) => {
           const categoryProducts = productsWithDiscount
             .filter((p) => p.category_id === category.id)
             .sort((a, b) => a.sort_order - b.sort_order)

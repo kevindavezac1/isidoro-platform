@@ -1,10 +1,5 @@
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import {
-  MOCK_POINTS_BALANCE,
-  MOCK_POINTS_TRANSACTIONS,
-  MOCK_REWARDS,
-} from '@/lib/mock-data'
 import { PointsCard } from '@/components/perfil/PointsCard'
 import { QRDisplay } from '@/components/perfil/QRDisplay'
 import { RewardsList } from '@/components/perfil/RewardsList'
@@ -21,16 +16,32 @@ export default async function PerfilPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name, qr_token')
-    .eq('id', user!.id)
-    .single()
-
-  // TODO: replace with real Supabase query when Kevin publishes endpoints
-  const balance = MOCK_POINTS_BALANCE
-  const transactions = MOCK_POINTS_TRANSACTIONS
-  const rewards = MOCK_REWARDS
+  const [
+    { data: profile },
+    { data: balance },
+    { data: transactions },
+    { data: rewards },
+  ] = await Promise.all([
+    supabase.from('profiles').select('full_name, qr_token').eq('id', user!.id).single(),
+    supabase
+      .from('points_balance')
+      .select('total_points, updated_at')
+      .eq('client_id', user!.id)
+      .single(),
+    supabase
+      .from('points_transactions')
+      .select(
+        'id, type, points, expires_at, created_at, consumptions(amount, consumed_at), redemptions(rewards(name))',
+      )
+      .eq('client_id', user!.id)
+      .order('created_at', { ascending: false })
+      .limit(20),
+    supabase
+      .from('rewards')
+      .select('*')
+      .eq('is_active', true)
+      .order('points_cost', { ascending: true }),
+  ])
 
   const qrSvg = profile?.qr_token
     ? await QRCode.toString(profile.qr_token, {
@@ -40,8 +51,9 @@ export default async function PerfilPage() {
       })
     : null
 
-  const affordableRewards = rewards.filter(
-    (r) => r.is_active && balance.total_points >= r.points_cost,
+  const totalPoints = balance?.total_points ?? 0
+  const affordableRewards = (rewards ?? []).filter(
+    (r) => r.is_active && totalPoints >= r.points_cost,
   )
 
   return (
@@ -55,15 +67,15 @@ export default async function PerfilPage() {
         </h1>
       </div>
 
-      <PointsCard points={balance.total_points} />
+      <PointsCard points={totalPoints} />
 
       {affordableRewards.length > 0 && (
-        <RewardsList rewards={affordableRewards} totalPoints={balance.total_points} />
+        <RewardsList rewards={affordableRewards} totalPoints={totalPoints} />
       )}
 
       <QRDisplay qrSvg={qrSvg} />
 
-      <TransactionHistory transactions={transactions} />
+      <TransactionHistory transactions={transactions ?? []} />
     </div>
   )
 }

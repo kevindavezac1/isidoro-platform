@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { MOCK_CATEGORIES, MOCK_PRODUCTS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { SuccessBanner } from '@/components/admin/SuccessBanner'
 import { DeleteButton } from '@/components/admin/DeleteButton'
 import { deleteCategory } from '@/lib/actions/admin-categories'
@@ -14,14 +14,18 @@ export default async function CategoriasPage({
 }) {
   const { success } = await searchParams
 
-  const categories = MOCK_CATEGORIES
-    .filter((c) => !c.deleted_at)
-    .sort((a, b) => a.sort_order - b.sort_order)
+  const supabase = await createClient()
 
+  const [{ data: categories }, { data: products }] = await Promise.all([
+    supabase.from('categories').select('*').order('sort_order', { ascending: true }),
+    supabase.from('products').select('category_id'),
+  ])
+
+  const categoryList = categories ?? []
   const productCountMap = Object.fromEntries(
-    categories.map((c) => [
+    categoryList.map((c) => [
       c.id,
-      MOCK_PRODUCTS.filter((p) => p.category_id === c.id && !p.deleted_at).length,
+      (products ?? []).filter((p) => p.category_id === c.id).length,
     ]),
   )
 
@@ -30,14 +34,13 @@ export default async function CategoriasPage({
       <SuccessBanner type={success} />
 
       <div className="px-8 py-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold font-display" style={{ color: 'var(--foreground)' }}>
               Categorías
             </h1>
             <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {categories.length} categoría{categories.length !== 1 ? 's' : ''} en carta
+              {categoryList.length} categoría{categoryList.length !== 1 ? 's' : ''} en carta
             </p>
           </div>
           <Link
@@ -49,7 +52,6 @@ export default async function CategoriasPage({
           </Link>
         </div>
 
-        {/* Table */}
         <div
           className="rounded-xl overflow-hidden border"
           style={{ borderColor: 'var(--border)' }}
@@ -72,7 +74,7 @@ export default async function CategoriasPage({
               </tr>
             </thead>
             <tbody>
-              {categories.map((cat, i) => (
+              {categoryList.map((cat, i) => (
                 <tr
                   key={cat.id}
                   style={{
@@ -87,7 +89,7 @@ export default async function CategoriasPage({
                     {cat.sort_order}
                   </td>
                   <td className="px-4 py-3 text-center tabular-nums" style={{ color: 'var(--text-muted)' }}>
-                    {productCountMap[cat.id]}
+                    {productCountMap[cat.id] ?? 0}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-4">
@@ -109,7 +111,7 @@ export default async function CategoriasPage({
             </tbody>
           </table>
 
-          {categories.length === 0 && (
+          {categoryList.length === 0 && (
             <div className="px-8 py-12 text-center" style={{ color: 'var(--text-muted)' }}>
               No hay categorías.{' '}
               <Link href="/admin/categorias/nueva" style={{ color: 'var(--brand)' }}>

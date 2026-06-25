@@ -16,7 +16,7 @@ function formatDate(iso: string): string {
 }
 
 type Props = {
-  transactions: PointsTransaction[]
+  transactions: Pick<PointsTransaction, 'id' | 'type' | 'points' | 'created_at'>[]
 }
 
 export function TransactionHistory({ transactions }: Props) {

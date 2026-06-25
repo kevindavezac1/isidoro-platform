@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MOCK_CATEGORIES } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { CategoryForm } from '@/components/admin/CategoryForm'
 import { updateCategory } from '@/lib/actions/admin-categories'
 
@@ -13,7 +13,14 @@ export default async function EditarCategoriaPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const category = MOCK_CATEGORIES.find((c) => c.id === id && !c.deleted_at)
+  const supabase = await createClient()
+
+  const { data: category } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('id', id)
+    .single()
+
   if (!category) notFound()
 
   return (

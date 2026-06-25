@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MOCK_TIME_OFFERS, MOCK_TIME_OFFER_PRODUCTS, MOCK_PRODUCTS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { TimeOfferForm } from '@/components/admin/TimeOfferForm'
 import { updateTimeOffer } from '@/lib/actions/admin-time-offers'
 
@@ -13,14 +13,25 @@ export default async function EditarOfertaPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const offer = MOCK_TIME_OFFERS.find((o) => o.id === id)
+  const supabase = await createClient()
+
+  const [{ data: offer }, { data: associations }, { data: products }] = await Promise.all([
+    supabase.from('time_offers').select('*').eq('id', id).single(),
+    supabase
+      .from('time_offer_products')
+      .select('product_id, price_override')
+      .eq('time_offer_id', id),
+    supabase
+      .from('products')
+      .select('id, name, price, category_id')
+      .order('sort_order', { ascending: true }),
+  ])
+
   if (!offer) notFound()
 
-  const initialAssociations = MOCK_TIME_OFFER_PRODUCTS.filter(
-    (top) => top.time_offer_id === id,
-  ).map((top) => ({
-    product_id: top.product_id,
-    price_override: top.price_override,
+  const initialAssociations = (associations ?? []).map((a) => ({
+    product_id: a.product_id,
+    price_override: a.price_override,
   }))
 
   return (
@@ -43,7 +54,7 @@ export default async function EditarOfertaPage({
       </p>
       <TimeOfferForm
         offer={offer}
-        allProducts={MOCK_PRODUCTS}
+        allProducts={products ?? []}
         initialAssociations={initialAssociations}
         action={updateTimeOffer.bind(null, id)}
         mode="edit"

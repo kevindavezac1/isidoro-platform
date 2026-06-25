@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { MOCK_PRODUCTS, MOCK_CATEGORIES } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { formatARS } from '@/lib/utils'
 import { SuccessBanner } from '@/components/admin/SuccessBanner'
 import { DeleteButton } from '@/components/admin/DeleteButton'
@@ -15,24 +15,26 @@ export default async function ProductosPage({
 }) {
   const { success } = await searchParams
 
-  const categoryMap = Object.fromEntries(MOCK_CATEGORIES.map((c) => [c.id, c.name]))
-  const products = MOCK_PRODUCTS.filter((p) => !p.deleted_at).sort(
-    (a, b) => a.sort_order - b.sort_order,
-  )
+  const supabase = await createClient()
+  const { data: products } = await supabase
+    .from('products')
+    .select('id, name, description, price, sort_order, is_available, category_id, categories(name)')
+    .order('sort_order', { ascending: true })
+
+  const productList = products ?? []
 
   return (
     <div>
       <SuccessBanner type={success} />
 
       <div className="px-8 py-6">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-semibold font-display" style={{ color: 'var(--foreground)' }}>
               Productos
             </h1>
             <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-              {products.length} producto{products.length !== 1 ? 's' : ''} en carta
+              {productList.length} producto{productList.length !== 1 ? 's' : ''} en carta
             </p>
           </div>
           <Link
@@ -44,7 +46,6 @@ export default async function ProductosPage({
           </Link>
         </div>
 
-        {/* Table */}
         <div
           className="rounded-xl overflow-hidden border"
           style={{ borderColor: 'var(--border)' }}
@@ -73,7 +74,7 @@ export default async function ProductosPage({
               </tr>
             </thead>
             <tbody>
-              {products.map((product, i) => (
+              {productList.map((product, i) => (
                 <tr
                   key={product.id}
                   style={{
@@ -90,7 +91,7 @@ export default async function ProductosPage({
                     )}
                   </td>
                   <td className="px-4 py-3" style={{ color: 'var(--text-muted)' }}>
-                    {categoryMap[product.category_id] ?? '—'}
+                    {(product.categories as unknown as { name: string } | null)?.name ?? '—'}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums" style={{ color: 'var(--foreground)' }}>
                     {formatARS(product.price)}
@@ -130,9 +131,12 @@ export default async function ProductosPage({
             </tbody>
           </table>
 
-          {products.length === 0 && (
+          {productList.length === 0 && (
             <div className="px-8 py-12 text-center" style={{ color: 'var(--text-muted)' }}>
-              No hay productos. <Link href="/admin/productos/nuevo" style={{ color: 'var(--brand)' }}>Crear el primero</Link>
+              No hay productos.{' '}
+              <Link href="/admin/productos/nuevo" style={{ color: 'var(--brand)' }}>
+                Crear el primero
+              </Link>
             </div>
           )}
         </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { MOCK_PRODUCTS, MOCK_CATEGORIES } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { ProductForm } from '@/components/admin/ProductForm'
 import { updateProduct } from '@/lib/actions/admin-products'
 
@@ -13,13 +13,17 @@ export default async function EditarProductoPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const product = MOCK_PRODUCTS.find((p) => p.id === id && !p.deleted_at)
-  if (!product) notFound()
+  const supabase = await createClient()
 
-  const categories = MOCK_CATEGORIES
-    .filter((c) => !c.deleted_at)
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((c) => ({ id: c.id, name: c.name }))
+  const [{ data: product }, { data: categories }] = await Promise.all([
+    supabase.from('products').select('*').eq('id', id).single(),
+    supabase
+      .from('categories')
+      .select('id, name')
+      .order('sort_order', { ascending: true }),
+  ])
+
+  if (!product) notFound()
 
   return (
     <div className="px-8 py-6">
@@ -40,7 +44,7 @@ export default async function EditarProductoPage({
       </div>
       <ProductForm
         product={product}
-        categories={categories}
+        categories={categories ?? []}
         action={updateProduct.bind(null, id)}
         mode="edit"
       />

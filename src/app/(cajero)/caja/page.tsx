@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { MOCK_CLIENTS, MOCK_SETTINGS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 import { RegistrarConsumoForm } from '@/components/cajero/RegistrarConsumoForm'
 import { registrarConsumo } from '@/lib/actions/cajero'
 
@@ -13,18 +13,61 @@ export default async function CajaPage({
   const { q, done, pts } = await searchParams
   const query = q?.trim() ?? ''
 
-  // Client lookup by QR token (exact) or name/email (contains)
-  const foundClient = query
-    ? MOCK_CLIENTS.find(
-        (c) =>
-          c.qr_token === query ||
-          c.full_name.toLowerCase().includes(query.toLowerCase()) ||
-          c.email.toLowerCase().includes(query.toLowerCase()),
-      )
-    : null
+  const supabase = await createClient()
 
-  // Client for success banner
-  const doneClient = done ? MOCK_CLIENTS.find((c) => c.id === done) : null
+  const { data: settings } = await supabase
+    .from('settings')
+    .select('points_per_peso')
+    .single()
+
+  const pointsPerPeso = settings?.points_per_peso ?? 1
+
+  // Done client lookup for success banner
+  let doneClient: { full_name: string } | null = null
+  if (done) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', done)
+      .maybeSingle()
+    doneClient = data
+  }
+
+  // Client search: exact QR match first, then fallback to name
+  let foundClient: { id: string; full_name: string; phone: string | null } | null = null
+  let foundBalance: { total_points: number } | null = null
+
+  if (query) {
+    const { data: byQR } = await supabase
+      .from('profiles')
+      .select('id, full_name, phone')
+      .eq('qr_token', query)
+      .eq('role', 'cliente')
+      .maybeSingle()
+
+    if (byQR) {
+      foundClient = byQR
+    } else {
+      const { data: byName } = await supabase
+        .from('profiles')
+        .select('id, full_name, phone')
+        .eq('role', 'cliente')
+        .ilike('full_name', `%${query}%`)
+        .limit(1)
+        .maybeSingle()
+      foundClient = byName
+    }
+
+    if (foundClient) {
+      const { data: balance } = await supabase
+        .from('points_balance')
+        .select('total_points')
+        .eq('client_id', foundClient.id)
+        .maybeSingle()
+      foundBalance = balance
+    }
+  }
+
   const ptsEarned = pts ? parseInt(pts, 10) : 0
 
   return (
@@ -58,7 +101,7 @@ export default async function CajaPage({
             name="q"
             type="search"
             defaultValue={query}
-            placeholder="Escanear QR o escribir nombre / email"
+            placeholder="Escanear QR o escribir nombre"
             autoComplete="off"
             autoFocus={!foundClient}
             className="flex-1 rounded-xl px-4 py-3 text-sm outline-none"
@@ -96,7 +139,6 @@ export default async function CajaPage({
       {/* Client card + form */}
       {foundClient && (
         <div className="space-y-4">
-          {/* Client card */}
           <div
             className="rounded-2xl px-5 py-4"
             style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}
@@ -106,16 +148,18 @@ export default async function CajaPage({
                 <p className="font-semibold" style={{ color: 'var(--foreground)' }}>
                   {foundClient.full_name}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                  {foundClient.email}
-                </p>
+                {foundClient.phone && (
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                    {foundClient.phone}
+                  </p>
+                )}
               </div>
               <div className="text-right">
                 <p
                   className="text-xl font-bold tabular-nums"
                   style={{ color: 'var(--brand)' }}
                 >
-                  {foundClient.balance?.total_points ?? 0}
+                  {foundBalance?.total_points ?? 0}
                 </p>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   puntos actuales
@@ -124,14 +168,12 @@ export default async function CajaPage({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t" style={{ borderColor: 'var(--border)' }} />
 
-          {/* Consumption form */}
           <RegistrarConsumoForm
             clientId={foundClient.id}
             clientName={foundClient.full_name}
-            pointsPerPeso={MOCK_SETTINGS.points_per_peso}
+            pointsPerPeso={pointsPerPeso}
             action={registrarConsumo.bind(null, foundClient.id)}
           />
         </div>

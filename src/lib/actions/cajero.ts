@@ -1,11 +1,18 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { MOCK_SETTINGS } from '@/lib/mock-data'
+import { createClient } from '@/lib/supabase/server'
 
-// TODO: replace with Supabase insert into consumptions + points_transactions (via DB trigger)
 export async function registrarConsumo(clientId: string, formData: FormData) {
-  const amount = parseInt(formData.get('amount') as string, 10)
-  const pts = Math.floor((isNaN(amount) ? 0 : amount) * MOCK_SETTINGS.points_per_peso)
-  redirect(`/caja?done=${clientId}&pts=${pts}`)
+  const supabase = await createClient()
+  const amount = parseFloat(formData.get('amount') as string)
+  const notes = (formData.get('notes') as string) || undefined
+
+  const { data, error } = await supabase.functions.invoke('register-consumption', {
+    body: { client_id: clientId, amount, notes },
+  })
+
+  if (error) throw new Error(error.message)
+
+  redirect(`/caja?done=${clientId}&pts=${data.points_earned}`)
 }
