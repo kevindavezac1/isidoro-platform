@@ -129,6 +129,16 @@
 
 ---
 
+### DEC-015 — Deploy de Edge Functions: inmediato al crear o modificar
+- **Decisión:** Toda Edge Function creada o modificada debe deployarse a Supabase inmediatamente con `npx supabase functions deploy <nombre>`. No alcanza con dejarla en el repo.
+- **Razonamiento:** Las 6 Edge Functions del proyecto estaban escritas y commiteadas pero nunca deployadas a Supabase. El frontend no podía invocarlas porque no existían en el entorno remoto. El código en el repo no es suficiente — Supabase necesita el deploy explícito para servir la función.
+- **Lección:** Repo ≠ deployed. Cada `git push` de una Edge Function debe ir acompañado de su deploy a Supabase.
+- **Implicación para Kevin:** Agregar deploy como paso obligatorio en el checklist "AL TERMINAR CADA TAREA".
+- **Tomada por:** Kevin (Backend Agent)
+- **Fecha:** 29 de junio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 *No hay decisiones abiertas por el momento.*
@@ -242,6 +252,7 @@ AL TERMINAR CADA TAREA:
 2. Cambiar estado en PROJECT_STATUS.md a ✅ Completado
 3. Mergear solo PROJECT_STATUS.md a main inmediatamente
 4. Avisar al CTO Agent con un resumen de lo entregado
+5. Si se creó o modificó una Edge Function: deployarla con `npx supabase functions deploy <nombre>` — el repo no alcanza (ver DEC-021)
 ```
 
 ---
