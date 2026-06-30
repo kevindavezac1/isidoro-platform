@@ -57,7 +57,7 @@
 | Perfil del cliente (historial, saldo de puntos) | Fran | ✅ Completado | Mock data. Reemplazar cuando Kevin integre endpoints reales. |
 | QR personal del cliente | Fran | ✅ Completado | SVG generado server-side con lib `qrcode` desde `profiles.qr_token` |
 | Vista cajero: registrar consumo | Fran | ✅ Completado | `/caja`: búsqueda por QR/nombre, card cliente con saldo, form con preview de puntos en tiempo real. |
-| Vista cajero: confirmar canje con código | Fran | ⬜ Pendiente | Mock pendiente |
+| Vista cajero: confirmar canje con código | Fran | ✅ Completado | /caja/canje — OTP 6 dígitos, confirm-redemption Edge Fn, success/error states, tab nav |
 
 ### Semana 4 — División de cuenta + estadísticas + QA
 

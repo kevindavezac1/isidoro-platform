@@ -4,13 +4,24 @@ import { PointsCard } from '@/components/perfil/PointsCard'
 import { QRDisplay } from '@/components/perfil/QRDisplay'
 import { RewardsList } from '@/components/perfil/RewardsList'
 import { TransactionHistory } from '@/components/perfil/TransactionHistory'
+import { CodigoCanjeCard } from '@/components/perfil/CodigoCanjeCard'
 import QRCode from 'qrcode'
 
 export const metadata: Metadata = {
   title: 'Mi perfil — Isidoro',
 }
 
-export default async function PerfilPage() {
+export default async function PerfilPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    code?:        string
+    expires?:     string
+    reward?:      string
+    canje_error?: string
+  }>
+}) {
+  const { code, expires, reward, canje_error } = await searchParams
   const supabase = await createClient()
   const {
     data: { user },
@@ -70,10 +81,22 @@ export default async function PerfilPage() {
       <PointsCard points={totalPoints} />
 
       {affordableRewards.length > 0 && (
-        <RewardsList rewards={affordableRewards} totalPoints={totalPoints} />
+        <RewardsList
+          rewards={affordableRewards}
+          totalPoints={totalPoints}
+          errorCode={canje_error}
+        />
       )}
 
       <QRDisplay qrSvg={qrSvg} />
+
+      {code && expires && reward && (
+        <CodigoCanjeCard
+          code={code}
+          expiresAt={decodeURIComponent(expires)}
+          rewardName={decodeURIComponent(reward)}
+        />
+      )}
 
       <TransactionHistory transactions={transactions ?? []} />
     </div>

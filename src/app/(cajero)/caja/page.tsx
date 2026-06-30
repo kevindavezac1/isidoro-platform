@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { RegistrarConsumoForm } from '@/components/cajero/RegistrarConsumoForm'
 import { registrarConsumo } from '@/lib/actions/cajero'
+import { CajaTabs } from '@/components/cajero/CajaTabs'
 
 export const metadata: Metadata = { title: 'Caja — Isidoro' }
 
@@ -72,6 +73,8 @@ export default async function CajaPage({
 
   return (
     <div className="space-y-6">
+      <CajaTabs active="consumo" />
+
       {/* Success banner */}
       {doneClient && (
         <div
