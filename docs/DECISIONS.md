@@ -139,6 +139,20 @@
 
 ---
 
+### DEC-016 — Flujo obligatorio para migraciones: `migration new` + `db push`
+- **Decisión:** Toda migración nueva debe crearse con `supabase migration new <nombre>` y aplicarse con `supabase db push`. Queda prohibido pegar SQL manualmente en el SQL Editor del Dashboard de Supabase.
+- **Razonamiento:** El 30 de junio de 2026 se detectó que las 9 migraciones del proyecto estaban aplicadas en la base de datos real pero no registradas en el historial del CLI (`supabase_migrations.schema_migrations`). La causa fue haber pegado SQL manualmente en el Dashboard sin pasar por el CLI. Esto desincronizó el código local del estado real de la DB y requirió reparación manual con `supabase migration repair --status applied` para cada una. Los fixes del día (`fix_profiles_rls_recursion`, `fix_grants_and_rls`) también se aplicaron fuera del flujo correcto.
+- **Flujo correcto:**
+  1. `supabase migration new <nombre_descriptivo>` — crea el archivo `.sql` en `supabase/migrations/`
+  2. Escribir el SQL en ese archivo
+  3. `supabase db push` — aplica la migración y la registra en el historial
+- **Lo que NO hacer:** Abrir el SQL Editor del Dashboard y pegar SQL directamente. El Dashboard no actualiza el historial del CLI.
+- **Implicación para Kevin y Fran:** Cualquier cambio de esquema, fix de RLS, o ajuste de grants debe seguir este flujo sin excepción.
+- **Tomada por:** Kevin + Fran
+- **Fecha:** 30 de junio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 *No hay decisiones abiertas por el momento.*
