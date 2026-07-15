@@ -155,7 +155,19 @@
 
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
-*No hay decisiones abiertas por el momento.*
+### DEC-017 — Leaked Password Protection: bloqueada por plan Free de Supabase
+- **Decisión:** Activar "Prevent use of leaked passwords" (Authentication → Policies / Auth Settings → Security and Protection) queda pendiente hasta que el proyecto pase a plan Supabase Pro.
+- **Razonamiento:** Confirmado el 15 de julio de 2026: el toggle solo está disponible en plan Pro, no en Free. El resto de los hallazgos del linter de seguridad (grants de funciones SECURITY DEFINER expuestas vía RPC) ya se resolvieron vía la migración `fix_security_definer_grants`. Este es el único ítem que depende de un upgrade de plan y no de código.
+- **Implicación para Kevin:** Al migrar el proyecto a Pro, activar el toggle y confirmar que el linter deja de marcarlo.
+- **Estado:** Pendiente — no bloqueante para producción.
+- **Fecha:** 15 de julio de 2026
+
+### DEC-018 — Dominio personalizado: pendiente de contratación
+- **Decisión:** El dominio web del restaurante todavía no está contratado ni apuntado. Ya figuraba como pendiente del cliente en `PROJECT_STATUS.md` ("Dominio web contratado y apuntado"); se registra también acá junto a DEC-017 porque ambos quedan abiertos por una definición externa al equipo (upgrade de plan de Supabase / compra de dominio por parte del cliente).
+- **Razonamiento:** Sin dominio propio, el deploy de producción sigue sirviendo desde el subdominio por defecto de Vercel. No bloquea desarrollo ni testing.
+- **Implicación para Kevin/Fran:** Ninguna acción de código requerida hasta que el cliente confirme el dominio. Cuando esté disponible: configurar el dominio en Vercel y actualizar las URLs de redirect de Supabase Auth (callback de Google OAuth, etc.).
+- **Estado:** Pendiente — no bloqueante para producción.
+- **Fecha:** 15 de julio de 2026
 
 ---
 
