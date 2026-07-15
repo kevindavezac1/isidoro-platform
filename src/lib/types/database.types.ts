@@ -25,7 +25,9 @@ export type Database = {
           id: string
           role: 'cliente' | 'cajero' | 'admin'
           full_name: string
+          dni: string | null
           phone: string | null
+          city: string | null
           qr_token: string
           created_at: string
           updated_at: string
@@ -34,7 +36,9 @@ export type Database = {
           id: string
           role?: 'cliente' | 'cajero' | 'admin'
           full_name: string
+          dni?: string | null
           phone?: string | null
+          city?: string | null
           qr_token?: string
           created_at?: string
           updated_at?: string
@@ -42,7 +46,9 @@ export type Database = {
         Update: {
           role?: 'cliente' | 'cajero' | 'admin'
           full_name?: string
+          dni?: string | null
           phone?: string | null
+          city?: string | null
           qr_token?: string
           updated_at?: string
         }
