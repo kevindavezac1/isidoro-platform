@@ -31,10 +31,14 @@ Extiende `auth.users` de Supabase. Una fila por usuario registrado.
 | id | uuid PK | Referencia a `auth.users.id` |
 | role | text | 'cliente' / 'cajero' / 'admin' — default 'cliente' vía trigger |
 | full_name | text | Nombre completo — el frontend siempre lo manda en signup |
-| phone | text nullable | Teléfono opcional |
+| dni | text nullable | Documento de identidad |
+| phone | text nullable | Teléfono |
+| city | text nullable | Ciudad |
 | qr_token | text UNIQUE | Token rotable para QR personal (DEC-008) |
 | created_at | timestamptz | — |
 | updated_at | timestamptz | — |
+
+⚠️ `dni`, `phone` y `city` son **obligatorios a nivel aplicación** para `role='cliente'`, pero quedan `nullable` en DB: el trigger `handle_new_user` crea el perfil sin estos datos en todo signup nuevo (email/password y Google OAuth), y usuarios preexistentes tampoco los tienen cargados. La app debe forzar completar el perfil vía UI — no hay constraint de DB que lo bloquee.
 
 RLS: cada usuario ve solo su propio perfil. Cajero y admin ven todos.
 
