@@ -305,11 +305,17 @@ supabase
   "id": "uuid",
   "role": "cliente",
   "full_name": "María García",
+  "dni": "30123456",
   "phone": "+54911...",
+  "city": "Buenos Aires",
   "qr_token": "abc123...",
   "created_at": "...",
   "updated_at": "..."
 }
+
+// dni, phone y city pueden venir null: obligatorios a nivel app para
+// role='cliente', pero el signup (email/password o Google) no los pide
+// — se completan después en la UI de perfil.
 ```
 
 ---
