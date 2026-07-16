@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 24 de junio de 2026 — CTO Agent (unificación feature/backend + feature/frontend)
+**Última actualización:** 16 de julio de 2026 — Fran (Dashboard de estadísticas integrado con Edge Fn reports real)
 **Estado general:** EN CURSO — Semana 4 (backend completo, frontend avanzado)
 **Semana actual:** 4 de 4
 **Riesgo de plazo:** Bajo
@@ -39,7 +39,7 @@
 | API categorías (CRUD) | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
 | API promociones con fechas | Kevin | ✅ Completado | PostgREST vía RLS — contratos en API_CONTRACTS.md |
 | API ofertas por horario | Kevin | ✅ Completado | PostgREST + activación en cliente (DEC-013) |
-| Carta pública con datos reales + categorías | Fran | ⬜ Pendiente | Depende de integración con endpoints reales de Kevin |
+| Carta pública con datos reales + categorías | Fran | ✅ Completado | Integrada con Supabase real: products, categories, promotions, time_offers, settings. Zero errores. Verificado 1 jul 2026. |
 | Panel admin: gestión de productos | Fran | ✅ Completado | CRUD completo con mock. Server Actions listas para reemplazar con Supabase. |
 | Panel admin: gestión de categorías | Fran | ✅ Completado | CRUD completo con mock. Muestra conteo de productos por categoría. |
 | Panel admin: promociones y ofertas por horario | Fran | ✅ Completado | CRUD completo con mock. PromoForm con datetime-local, TimeOfferForm con product associations + price_override. |
@@ -57,7 +57,7 @@
 | Perfil del cliente (historial, saldo de puntos) | Fran | ✅ Completado | Mock data. Reemplazar cuando Kevin integre endpoints reales. |
 | QR personal del cliente | Fran | ✅ Completado | SVG generado server-side con lib `qrcode` desde `profiles.qr_token` |
 | Vista cajero: registrar consumo | Fran | ✅ Completado | `/caja`: búsqueda por QR/nombre, card cliente con saldo, form con preview de puntos en tiempo real. |
-| Vista cajero: confirmar canje con código | Fran | ⬜ Pendiente | Mock pendiente |
+| Vista cajero: confirmar canje con código | Fran | ✅ Completado | /caja/canje — OTP 6 dígitos, confirm-redemption Edge Fn, success/error states, tab nav. **Probado end-to-end con datos reales (1 jul 2026)** |
 
 ### Semana 4 — División de cuenta + estadísticas + QA
 
@@ -67,7 +67,7 @@
 | Ajuste manual de puntos (admin) | Kevin | ✅ Completado | Edge Fn adjust-points + SQL fn adjust_points — atómico, solo admin |
 | Endpoints de reportes y estadísticas | Kevin | ✅ Completado | Edge Fn reports — 4 SQL fns en paralelo, solo admin |
 | UI división de cuenta | Fran | ⬜ Pendiente | — |
-| Dashboard de estadísticas | Fran | ⬜ Pendiente | — |
+| Dashboard de estadísticas | Fran | ✅ Completado | Integrado con Edge Fn `reports` real (no mock): KPIs, gráfico de consumos por día, top clientes, top recompensas. |
 | Panel admin: búsqueda y gestión de clientes | Fran | ✅ Completado | Buscador por nombre/email (debounce URL), tabla con puntos, detalle con historial de consumos + form ajuste manual de puntos. |
 | QA completo de todos los flujos | Kevin + Fran | ⬜ Pendiente | — |
 | Deploy a producción | Kevin + Fran | ⬜ Pendiente | — |
@@ -78,10 +78,10 @@
 _Ninguno crítico. El backend de Kevin está 100% completo. Fran puede integrar datos reales en cualquier momento._
 
 ## Integración pendiente (Fran reemplaza mocks por datos reales)
-- Carta pública → endpoints productos, categorías, time_offers, promotions
+- ~~Carta pública → endpoints productos, categorías, time_offers, promotions~~ ✅ integrada
 - Perfil cliente → `/rest/v1/points_balance` y `/rest/v1/points_transactions`
-- Vista cajero → Edge Fn `register-consumption` y `confirm-redemption`
-- Dashboard → Edge Fn `reports`
+- Vista cajero → Edge Fn `register-consumption` (confirm-redemption ✅ probado)
+- ~~Dashboard → Edge Fn `reports`~~ ✅ integrado
 - División de cuenta → Edge Fn `split-consumption`
 
 ## Pendientes del cliente (Restaurante Isidoro)
