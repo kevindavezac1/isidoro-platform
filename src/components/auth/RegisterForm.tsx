@@ -5,9 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { GoogleAuthButton } from './GoogleAuthButton'
+import { CityCombobox } from './CityCombobox'
+import { CIUDADES_SANTA_FE } from '@/lib/data/ciudades'
 
 const INPUT_CLS =
   'w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-sm text-foreground placeholder:text-text-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand transition-colors'
+
+const DNI_REGEX = /^\d{7,8}$/
 
 function mapAuthError(message: string): string {
   if (message.includes('User already registered')) return 'Ya existe una cuenta con ese email'
@@ -18,6 +22,9 @@ function mapAuthError(message: string): string {
 export function RegisterForm() {
   const router = useRouter()
   const [fullName, setFullName] = useState('')
+  const [dni, setDni] = useState('')
+  const [phone, setPhone] = useState('')
+  const [city, setCity] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -28,6 +35,21 @@ export function RegisterForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
+
+    if (!DNI_REGEX.test(dni.trim())) {
+      setError('El DNI debe tener 7 u 8 dígitos, sin puntos')
+      return
+    }
+
+    if (!phone.trim()) {
+      setError('Ingresá un teléfono de contacto')
+      return
+    }
+
+    if (!city.trim()) {
+      setError('Ingresá tu ciudad')
+      return
+    }
 
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden')
@@ -40,7 +62,14 @@ export function RegisterForm() {
     const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName.trim() } },
+      options: {
+        data: {
+          full_name: fullName.trim(),
+          dni: dni.trim(),
+          phone: phone.trim(),
+          city: city.trim(),
+        },
+      },
     })
 
     if (authError) {
@@ -128,6 +157,53 @@ export function RegisterForm() {
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Juan García"
                 className={INPUT_CLS}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="dni" className="text-sm font-medium text-foreground">
+                DNI
+              </label>
+              <input
+                id="dni"
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                required
+                value={dni}
+                onChange={(e) => setDni(e.target.value)}
+                placeholder="30123456"
+                className={INPUT_CLS}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="phone" className="text-sm font-medium text-foreground">
+                Teléfono
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                autoComplete="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+54 342 1234567"
+                className={INPUT_CLS}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="city" className="text-sm font-medium text-foreground">
+                Ciudad
+              </label>
+              <CityCombobox
+                id="city"
+                value={city}
+                onChange={setCity}
+                options={CIUDADES_SANTA_FE}
+                required
+                placeholder="Santa Fe"
               />
             </div>
 

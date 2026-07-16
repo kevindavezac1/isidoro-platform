@@ -29,7 +29,7 @@
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
 | Login email/password + Google OAuth | Fran | ✅ Completado | Redirect por rol. Ruta `/auth/callback` para OAuth. Validado con usuario real (Francisco Bonfanti) |
-| Registro email/password + Google OAuth | Fran | ✅ Completado | `full_name` en `options.data`. Maneja email confirm + auto-login. |
+| Registro email/password + Google OAuth | Fran | ✅ Completado | `full_name`, `dni`, `phone`, `city` en `options.data` (email/password). Maneja email confirm + auto-login. Ciudad con combobox+autocompletado (DEC-019). Google OAuth no pide dni/phone/city — ver Bloqueos activos. |
 
 ### Semana 2 — Carta digital + gestión de productos
 
@@ -75,7 +75,7 @@
 ---
 
 ## Bloqueos activos
-_Ninguno crítico. El backend de Kevin está 100% completo. Fran puede integrar datos reales en cualquier momento._
+- ⚠️ **Kevin:** el trigger `handle_new_user` solo lee `full_name` de `raw_user_meta_data`. `RegisterForm.tsx` ya manda `dni`, `phone` y `city` en el signup, pero esos datos se pierden porque el trigger no los captura. Actualizar `supabase/migrations/20260615000001_handle_new_user.sql` (o migración nueva) para leer e insertar también esos 3 campos en `profiles`. Ver DEC-019.
 
 ## Integración pendiente (Fran reemplaza mocks por datos reales)
 - ~~Carta pública → endpoints productos, categorías, time_offers, promotions~~ ✅ integrada
