@@ -153,6 +153,16 @@
 
 ---
 
+### DEC-019 — dni/phone/city obligatorios en el registro (email/password)
+- **Decisión:** `RegisterForm.tsx` ahora pide `dni`, `phone` y `city` como campos obligatorios junto a `full_name`, y los manda en `options.data` del `signUp()` — mismo mecanismo que ya se usaba para `full_name`. `city` usa un combobox con autocompletado (`CityCombobox.tsx`) sobre una lista estática de localidades de Santa Fe y alrededores (`src/lib/data/ciudades.ts`), pero acepta texto libre para no bloquear clientes de localidades no listadas. `dni` se valida con regex `^\d{7,8}$` (formato DNI argentino, sin puntos).
+- **Razonamiento:** Antes estos campos se iban a completar "después en el perfil", pero esa UI de completar perfil nunca se construyó — quedaban sin pedirse en ningún lado. Pedirlos en el registro con email/password es más simple que armar un flujo de perfil incompleto aparte, y reutiliza el patrón ya validado de `full_name` en `raw_user_meta_data`.
+- **Gap conocido — Google OAuth:** el botón "Registrarse con Google" redirige directo a OAuth y no pasa por este formulario, así que estos 3 campos no se piden en ese flujo. Se deja así intencionalmente por ahora; un flujo de "completar perfil" post-OAuth queda pendiente como tarea aparte, no bloqueante.
+- **⚠️ Acción pendiente para Kevin:** el trigger `handle_new_user` (`supabase/migrations/20260615000001_handle_new_user.sql`) solo lee `full_name` de `raw_user_meta_data` al insertar en `profiles`. El formulario ya manda `dni`, `phone` y `city`, pero **se pierden** hasta que el trigger se actualice para leer también esos 3 campos e incluirlos en el `insert into public.profiles`. Reflejado también en "Bloqueos activos" de `PROJECT_STATUS.md`.
+- **Tomada por:** Fran (Frontend Agent) — aprobado por CTO Agent
+- **Fecha:** 16 de julio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 ### DEC-017 — Leaked Password Protection: bloqueada por plan Free de Supabase
