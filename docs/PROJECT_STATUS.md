@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 1 de julio de 2026 — Fran (flujo canje probado end-to-end con datos reales)
+**Última actualización:** 16 de julio de 2026 — Fran (Dashboard de estadísticas integrado con Edge Fn reports real)
 **Estado general:** EN CURSO — Semana 4 (backend completo, frontend avanzado)
 **Semana actual:** 4 de 4
 **Riesgo de plazo:** Bajo
@@ -67,7 +67,7 @@
 | Ajuste manual de puntos (admin) | Kevin | ✅ Completado | Edge Fn adjust-points + SQL fn adjust_points — atómico, solo admin |
 | Endpoints de reportes y estadísticas | Kevin | ✅ Completado | Edge Fn reports — 4 SQL fns en paralelo, solo admin |
 | UI división de cuenta | Fran | ⬜ Pendiente | — |
-| Dashboard de estadísticas | Fran | ⬜ Pendiente | — |
+| Dashboard de estadísticas | Fran | ✅ Completado | Integrado con Edge Fn `reports` real (no mock): KPIs, gráfico de consumos por día, top clientes, top recompensas. |
 | Panel admin: búsqueda y gestión de clientes | Fran | ✅ Completado | Buscador por nombre/email (debounce URL), tabla con puntos, detalle con historial de consumos + form ajuste manual de puntos. |
 | QA completo de todos los flujos | Kevin + Fran | ⬜ Pendiente | — |
 | Deploy a producción | Kevin + Fran | ⬜ Pendiente | — |
@@ -81,7 +81,7 @@ _Ninguno crítico. El backend de Kevin está 100% completo. Fran puede integrar 
 - ~~Carta pública → endpoints productos, categorías, time_offers, promotions~~ ✅ integrada
 - Perfil cliente → `/rest/v1/points_balance` y `/rest/v1/points_transactions`
 - Vista cajero → Edge Fn `register-consumption` (confirm-redemption ✅ probado)
-- Dashboard → Edge Fn `reports`
+- ~~Dashboard → Edge Fn `reports`~~ ✅ integrado
 - División de cuenta → Edge Fn `split-consumption`
 
 ## Pendientes del cliente (Restaurante Isidoro)
