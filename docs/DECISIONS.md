@@ -210,6 +210,25 @@
 
 ---
 
+### DEC-023 — 🔴 BLOQUEANTE CRÍTICO: `categories`, `products` y `rewards` rotas para usuarios anónimos (`permission denied for function current_user_role`)
+- **Hallazgo:** Durante la ejecución del QA (Flujo 4 — Carta pública), `/carta` cargaba sin productos ni categorías. Se descartó que fuera un bug de frontend probando las tablas directamente contra la API REST de Supabase con la `anon key` (la misma que usa la app, sin pasar por Next.js):
+  - `settings`, `promotions`, `time_offers` → **OK**, devuelven datos.
+  - `categories`, `products`, `rewards` → **`{"code":"42501", "message":"permission denied for function current_user_role"}`** en cualquier lectura, incluso `select` simples sin filtros.
+- **Impacto:** `/carta` (la carta digital pública, el flujo más visible del producto) no muestra ni un solo producto ni categoría a ningún visitante sin sesión — es decir, a **todos** los clientes reales del restaurante. También rompe la lista de recompensas en `/perfil` (`rewards`), y probablemente cualquier pantalla admin que dependa de estas tablas.
+- **Causa técnica:** la función `public.current_user_role()` (creada en `supabase/migrations/20260625000001_fix_grants_and_rls.sql`, `SECURITY DEFINER`, pensada originalmente solo para la policy de `profiles`) aparece referenciada en las policies de lectura de `categories`/`products`/`rewards` en la base **real**, pero esa función nunca recibió `GRANT EXECUTE` para los roles `anon`/`authenticated`. Ninguna migración del repo modifica las policies de estas 3 tablas para usar `current_user_role()` — el código vivo en Supabase diverge del repo.
+- **Pista fuerte sobre el origen (a confirmar por Kevin, no verificado directamente):** DEC-017 (15 jul 2026) menciona que los hallazgos del linter de seguridad sobre "grants de funciones SECURITY DEFINER expuestas vía RPC" se resolvieron vía una migración llamada `fix_security_definer_grants` — **esa migración no existe en `supabase/migrations/`**. Es consistente con que ese fix haya sido aplicado directamente en el Dashboard (violando el flujo obligatorio de DEC-016) y que, al revocar el `EXECUTE` público sobre funciones `SECURITY DEFINER` para cerrar el hallazgo del linter, se haya revocado también el acceso que las policies de `categories`/`products`/`rewards` necesitaban para `anon`/`authenticated`, sin volver a otorgarlo explícitamente para esos roles.
+- **Qué necesita hacer Kevin:**
+  1. Confirmar en el Dashboard (Database → Functions → `current_user_role`, y Database → Policies de `categories`/`products`/`rewards`) qué cambió realmente y cuándo.
+  2. `GRANT EXECUTE ON FUNCTION public.current_user_role() TO anon, authenticated;` (o revisar si las policies de estas 3 tablas deberían simplemente volver a `using (true)` para lectura pública, sin pasar por `current_user_role()` en absoluto — más simple y no depende de la función).
+  3. Aplicar el fix como migración nueva vía `supabase migration new` + `supabase db push` (DEC-016), **no** pegar SQL en el Dashboard otra vez.
+  4. Reconciliar el repo con el estado real de la DB: si `fix_security_definer_grants` existe en producción pero no en el repo, hay que traerla (`supabase db pull` o reconstruir el SQL manualmente) para que el historial de migraciones vuelva a ser la fuente de verdad.
+- **Por qué no lo resuelve Fran:** es RLS/grants sobre la base de datos — dominio exclusivo del Backend Agent. Tocarlo sin conocer el estado real de las policies arriesga romper algo más, o volver a violar DEC-016.
+- **Estado:** 🔴 Bloqueante — impide continuar el QA de los Flujos 4 (Carta pública) y 5 (Canje de recompensas), y probablemente afecta partes de Admin que consultan estas tablas. Pausado hasta que Kevin lo resuelva.
+- **Tomada por:** Fran (Frontend Agent) — diagnóstico; corrección pendiente de Kevin (Backend Agent)
+- **Fecha:** 17 de julio de 2026
+
+---
+
 ## System Prompts de los agentes
 
 ### CTO Agent — System Prompt
