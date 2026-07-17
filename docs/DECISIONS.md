@@ -181,6 +181,17 @@
 
 ---
 
+### DEC-022 — Fix de 2 bugs bloqueantes encontrados en la revisión previa a QA (`QA_CHECKLIST.md`)
+- **Decisión:** Se corrigieron los 2 hallazgos marcados como bloqueantes en el resumen de `QA_CHECKLIST.md`:
+  1. **Ofertas por horario que cruzan medianoche nunca se activaban** (`isTimeOfferActive` en `src/app/(public)/carta/page.tsx`): la comparación `nowInTZ >= start_time && nowInTZ <= end_time` es matemáticamente imposible de cumplir cuando `start_time > end_time` (ej. `22:00`–`02:00`). Fix: si `start_time <= end_time` se mantiene la lógica original; si `start_time > end_time` la oferta está activa cuando `nowInTZ >= start_time || nowInTZ <= end_time` (unión de los dos tramos en vez de intersección). Verificado con 8 casos borde vía script descartable (normal dentro/fuera, medianoche dentro/fuera de ambos tramos, límites inclusivos) — los 8 pasaron.
+  2. **`adjustPoints` no parseaba el código de error del Edge Function** (`src/lib/actions/admin-clients.ts`): un `throw new Error(error.message)` genérico hacía que un débito con `insufficient_points` (u otro error) terminara en una pantalla de error de Next.js en vez de un mensaje amigable. Fix: mismo patrón que `iniciarCanje`/`confirmarCanje` — parsea `error.context` (Response) como JSON para extraer `code`, y redirige a `/admin/clientes/[id]?error=<code>` en vez de crashear. `PointsAdjustForm.tsx` ahora acepta `errorCode` y muestra un banner mapeado (`insufficient_points`, `invalid_points`, `client_not_found`, `insufficient_role`/`unauthorized`, fallback `unknown`).
+- **Alcance explícito — no incluido:** el Edge Function `adjust-points` no reenvía el detalle "Disponible: X, Requerido: Y" que genera la función SQL, solo el `code`. El banner de error no muestra esas cifras exactas — mostrarlas requeriría tocar el Edge Function (dominio de Kevin) y no formaba parte de este fix.
+- **Los otros 3 gaps del resumen de `QA_CHECKLIST.md`** (soft-delete sin filtrar en listas admin, buscador de clientes sin email, sin selector de fechas en estadísticas) quedan documentados como pendientes, no bloqueantes — decisión explícita de priorización del CTO Agent.
+- **Tomada por:** Fran (Frontend Agent) — aprobado por CTO Agent
+- **Fecha:** 16 de julio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 ### DEC-017 — Leaked Password Protection: bloqueada por plan Free de Supabase

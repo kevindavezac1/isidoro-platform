@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 16 de julio de 2026 — Fran (checklist de QA completo armado en docs/QA_CHECKLIST.md)
+**Última actualización:** 16 de julio de 2026 — Fran (2 bugs bloqueantes del QA corregidos: ofertas que cruzan medianoche + error de adjustPoints)
 **Estado general:** EN CURSO — Semana 4 (backend completo, frontend avanzado)
 **Semana actual:** 4 de 4
 **Riesgo de plazo:** Bajo
@@ -70,7 +70,7 @@
 | UI división de cuenta | Fran | ✅ Completado | `/caja/division` (tercer tab en CajaTabs). Búsqueda de clientes client-side vía Server Action (sin reload), monto individual por cliente con preview de puntos, chequeo cruzado opcional de total de mesa, resultado inline por cliente. Integrado con Edge Fn `split-consumption` real (no mock). |
 | Dashboard de estadísticas | Fran | ✅ Completado | Integrado con Edge Fn `reports` real (no mock): KPIs, gráfico de consumos por día, top clientes, top recompensas. |
 | Panel admin: búsqueda y gestión de clientes | Fran | ✅ Completado | Buscador por nombre/email (debounce URL), tabla con puntos, detalle con historial de consumos + form ajuste manual de puntos. |
-| QA completo de todos los flujos | Kevin + Fran | ⬜ Pendiente | Checklist completo listo en `docs/QA_CHECKLIST.md` (14 flujos, pasos exactos + resultado esperado, grounded en código real). Incluye 10 gaps/inconsistencias ya detectados por revisión de código, a confirmar durante la ejecución manual. Falta ejecutarlo. |
+| QA completo de todos los flujos | Kevin + Fran | ⬜ Pendiente | Checklist completo en `docs/QA_CHECKLIST.md` (14 flujos). De los 10 gaps detectados por revisión de código, los 2 bloqueantes ya están corregidos (DEC-022): ofertas por horario que cruzan medianoche, y `adjustPoints` sin manejo de errores. Los otros 3 (soft-delete sin filtrar, buscador sin email, sin selector de fechas en estadísticas) quedan documentados como no bloqueantes. Falta ejecutar el checklist completo en vivo. |
 | Deploy a producción | Kevin + Fran | ⬜ Pendiente | — |
 
 ---

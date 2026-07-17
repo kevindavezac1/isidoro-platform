@@ -63,7 +63,7 @@
 7. [ ] Si hay una promoción activa (`is_active=true`, dentro del rango `valid_from`–`valid_until`) → **esperado:** aparece en el carrusel superior con badge "PROMO", sin precio.
 8. [ ] Si hay una oferta por horario activa en el horario actual → **esperado:** aparece en el carrusel con badge "AHORA"; si el primer producto asociado tiene `price_override`, se muestra el precio con descuento.
 9. [ ] Para un producto con `price_override` activo por una oferta de horario → **esperado:** en su card se ve el precio con descuento tachando el original, badge "PROMO", y los puntos a ganar (`+N pts`) calculados sobre el precio **con descuento**, no el original.
-10. [ ] **Caso a verificar (gap conocido):** crear/editar una oferta por horario con horario que cruza medianoche (ej. `start_time=22:00`, `end_time=02:00`) → **esperado según código actual:** la oferta **nunca se activa** en la carta pública, porque la comparación de horario es un string compare simple que no soporta cruce de medianoche. Confirmar que efectivamente nunca aparece como activa, y decidir si hay que reportarlo a Kevin o documentar la limitación.
+10. [ ] **Fix aplicado 16 jul 2026 — verificar:** crear/editar una oferta por horario con horario que cruza medianoche (ej. `start_time=22:00`, `end_time=02:00`) → **esperado ahora:** la oferta se activa correctamente durante ambos tramos (ej. a las 23:00 y a la 01:00), y permanece inactiva en el resto del día (ej. a las 10:00). Confirmar en horario real o simulando la hora del sistema.
 11. [ ] Buscar si existe algún input de búsqueda o filtro en la carta → **esperado:** no existe, solo navegación por categoría vía el menú hamburguesa. (No marcar como bug — es el diseño actual.)
 
 ### 5. Perfil del cliente + canje de recompensas
@@ -175,7 +175,7 @@
 6. [ ] Entrar a un `id` de cliente que no existe (URL manual) → **esperado:** página 404 de Next.js.
 7. [ ] Hacer un ajuste manual **positivo** (ej. +50 puntos) con una nota obligatoria → **esperado:** preview en vivo con `+50 pts` en verde/dorado mientras se escribe, botón habilitado solo con nota + puntos ≠ 0, y tras confirmar: banner "Actualizado correctamente" (o el que corresponda) y el saldo del cliente sube 50.
 8. [ ] Hacer un ajuste **negativo** dentro del saldo disponible (ej. cliente tiene 100, descontar -30) → **esperado:** saldo baja a 70, queda registrado en el historial como "Ajuste manual".
-9. [ ] **Caso a verificar (gap conocido, importante):** hacer un ajuste negativo **mayor al saldo disponible** (ej. cliente tiene 20 puntos, intentar descontar -100) → el Edge Function debería devolver `insufficient_points`, pero el server action `adjustPoints` no parsea el código de error como sí lo hace `iniciarCanje` — hace un `throw new Error(...)` genérico. **Esperado real (a confirmar):** en vez de un mensaje amigable tipo "saldo insuficiente", probablemente aparece una pantalla de error genérica de Next.js. Si se confirma, documentar como bug a corregir (agregar el mismo parseo de `error.context` que ya usa `iniciarCanje`).
+9. [ ] **Fix aplicado 16 jul 2026 — verificar:** hacer un ajuste negativo **mayor al saldo disponible** (ej. cliente tiene 20 puntos, intentar descontar -100) → **esperado ahora:** el Edge Function devuelve `insufficient_points`, `adjustPoints` lo parsea (mismo mecanismo que `iniciarCanje`) y redirige a `/admin/clientes/[id]?error=insufficient_points`, mostrando el banner "Saldo insuficiente para aplicar este descuento" arriba del form — sin pantalla de error genérica ni crash.
 10. [ ] Intentar enviar el form de ajuste con puntos en `0` (o vacío) → **esperado:** el botón "Aplicar ajuste" queda deshabilitado, no se puede enviar.
 11. [ ] Cargar un número decimal (ej. `5.7`) en puntos → **esperado según código:** se trunca a `5` (parseInt), no da error ni redondea.
 
@@ -202,8 +202,8 @@ Estos 10 puntos ya están referenciados dentro de sus secciones correspondientes
 
 1. Productos/categorías eliminados (`deleted_at`) probablemente siguen listados en el admin — el query no filtra.
 2. Promociones/ofertas usan `is_active=false` como "delete", no `deleted_at` — comportamiento distinto al de productos/categorías, posible inconsistencia de UX a nivelar.
-3. `adjustPoints` no parsea el código de error del Edge Function (a diferencia de `iniciarCanje`) — un débito con saldo insuficiente probablemente crashea en vez de mostrar mensaje amigable.
-4. Ofertas por horario que cruzan medianoche nunca se activan en la carta pública (comparación de string simple).
+3. ~~`adjustPoints` no parsea el código de error del Edge Function~~ **✅ Corregido 16 jul 2026** — ahora parsea `error.context` igual que `iniciarCanje`/`confirmarCanje` y muestra un banner con mensaje según el código (`insufficient_points`, `invalid_points`, `client_not_found`, etc.) en vez de crashear. Ver `PointsAdjustForm.tsx` y `admin-clients.ts`.
+4. ~~Ofertas por horario que cruzan medianoche nunca se activan en la carta pública~~ **✅ Corregido 16 jul 2026** — `isTimeOfferActive` en `carta/page.tsx` ahora detecta `start_time > end_time` y evalúa la unión de los dos tramos en vez de la intersección. Verificado con 8 casos borde (normal dentro/fuera, medianoche dentro/fuera, límites inclusivos).
 5. Buscador de clientes en admin dice "por nombre o email" pero solo filtra por nombre/teléfono.
 6. `/admin/estadisticas` no tiene selector de rango de fechas en la UI (siempre últimos 30 días).
 7. `image_url` de productos no se renderiza en la carta pública (falta Storage — ya documentado como pendiente en el propio form).
