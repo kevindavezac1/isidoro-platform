@@ -229,6 +229,19 @@
 
 ---
 
+### DEC-024 — Fix: falta `color-scheme: dark` — el navegador forzaba un modo oscuro genérico sobre el theme real
+- **Hallazgo:** durante el QA de Admin (Flujo 9), capturas de pantalla de `/carta` y `/admin/productos` mostraban toda la UI en fondo negro plano, sin ninguna distinción visual entre `--background`, `--surface` y filas de tabla — se veía "roto" pero sin ningún error en consola ni en las respuestas del servidor.
+- **Método de diagnóstico:** en vez de asumir por inspección visual, se muestrearon píxeles reales de ambas capturas (`System.Drawing` vía PowerShell) en puntos que deberían tener colores distintos según `globals.css`. Los tres puntos (fondo de página, sidebar, fila de tabla) dieron **exactamente RGB(10,10,10)** en ambas capturas — un valor plano que no corresponde a ningún color real definido (`--background: #1f352a`, `--surface: #2a4535`, etc.). Si el CSS realmente no hubiera cargado, `curl` lo habría mostrado (no fue el caso: el chunk CSS servido contenía los colores correctos, confirmado en la sesión anterior). La única explicación consistente con "el servidor manda el CSS correcto pero el navegador pinta otra cosa" es un post-procesamiento del lado del navegador.
+- **Causa:** faltaba declarar `color-scheme: dark` (CSS) y el meta tag equivalente. Sin esa señal, navegadores basados en Chromium con "modo oscuro forzado para contenido web" activado (heurística de accesibilidad/comodidad, común en Windows con dark mode del sistema) asumen que el sitio no tiene soporte nativo de dark mode y le aplican su propio filtro de repintado, aplanando toda la paleta real del proyecto a sus propios grises/negros genéricos — exactamente lo que se veía.
+- **Fix:**
+  1. `src/app/globals.css` — `color-scheme: dark;` agregado dentro de `:root`.
+  2. `src/app/layout.tsx` — `export const viewport: Viewport = { colorScheme: "dark" }`. **Nota de versión:** en Next.js 14+ (y por lo tanto acá en Next 16) `colorScheme` ya no se declara dentro de `metadata` — está deprecado ahí desde v13.2 en favor de un `export const viewport` separado (`generate-viewport.md` en `node_modules/next/dist/docs`). El primer intento de ponerlo en `metadata` compiló sin error mostrando el problema real: no generaba ningún meta tag. Se corrigió moviéndolo a `viewport` y se verificó que el `<meta name="color-scheme" content="dark">` apareciera en el HTML servido.
+- **Verificado:** `tsc`/`eslint` limpios; el meta tag y la propiedad CSS confirmados presentes en la respuesta real del servidor.
+- **Tomada por:** Fran (Frontend Agent) — aprobado por CTO Agent
+- **Fecha:** 17 de julio de 2026
+
+---
+
 ## System Prompts de los agentes
 
 ### CTO Agent — System Prompt
