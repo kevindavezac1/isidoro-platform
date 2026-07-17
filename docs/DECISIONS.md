@@ -172,6 +172,15 @@
 
 ---
 
+### DEC-021 — UI división de cuenta: búsqueda client-side vía Server Action, sin navegación GET
+- **Decisión:** `/caja/division` (`DivisionCuentaForm.tsx`) rompe con el patrón de `/caja` y `/caja/canje`, que buscan clientes vía `<form method="GET">` con `?q=` y re-renderizan la página server-side. En división de cuenta, el cajero busca y agrega N clientes a una lista que se va acumulando en memoria; una búsqueda por GET perdería esa lista en cada vuelta. En cambio, `buscarClienteParaDivision` es una Server Action que se llama directamente como función async desde el client component (patrón estándar de React Server Functions, sin `<form action>` de por medio) y devuelve el dato en vez de redirigir. Lo mismo para `dividirCuenta`: no usa `redirect()` como `registrarConsumo`/`confirmarCanje` — devuelve `{ok, data|code}` para que el resultado (o el error) se muestre inline en el mismo estado del componente, sin perder lo ya cargado.
+- **Razonamiento:** Mantener consistencia de patrón por consistencia hubiera significado codificar la lista de clientes agregados y sus montos en la URL entre cada búsqueda — mucho más frágil y menos legible que estado de React local. Server Actions llamadas directamente (no como `action` de un `<form>`) son parte de la API estándar de React/Next.js, no un hack.
+- **Validación cruzada en el cliente:** además de las validaciones del backend (mínimo 2 splits, montos positivos, `client_id` únicos, `amount_mismatch` con tolerancia ±0.01), la UI adelanta el chequeo de `amount_mismatch` client-side (compara la suma de montos ingresados contra un campo opcional "monto total de la mesa") para evitar una ida y vuelta al servidor por un error de tipeo.
+- **Tomada por:** Fran (Frontend Agent) — aprobado por CTO Agent
+- **Fecha:** 16 de julio de 2026
+
+---
+
 ## Decisiones pendientes (Kevin y Fran deben resolver)
 
 ### DEC-017 — Leaked Password Protection: bloqueada por plan Free de Supabase
