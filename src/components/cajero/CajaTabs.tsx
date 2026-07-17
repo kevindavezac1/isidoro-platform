@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-export function CajaTabs({ active }: { active: 'consumo' | 'canje' }) {
+export function CajaTabs({ active }: { active: 'consumo' | 'canje' | 'division' }) {
   return (
     <div
       className="flex rounded-xl overflow-hidden"
@@ -25,6 +25,16 @@ export function CajaTabs({ active }: { active: 'consumo' | 'canje' }) {
         }}
       >
         Canje
+      </Link>
+      <Link
+        href="/caja/division"
+        className="flex-1 py-2.5 text-sm font-semibold text-center transition-colors"
+        style={{
+          background: active === 'division' ? 'var(--brand)' : 'var(--surface)',
+          color: active === 'division' ? 'var(--background)' : 'var(--text-muted)',
+        }}
+      >
+        División
       </Link>
     </div>
   )
