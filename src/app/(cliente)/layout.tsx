@@ -23,7 +23,7 @@ export default async function ClienteLayout({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, full_name')
+    .select('role, full_name, dni, phone, city')
     .eq('id', user.id)
     .single()
 
@@ -31,6 +31,7 @@ export default async function ClienteLayout({
   if (profile.role === 'admin') redirect('/admin')
   if (profile.role === 'cajero') redirect('/caja')
   if (profile.role !== 'cliente') redirect('/login')
+  if (!profile.dni || !profile.phone || !profile.city) redirect('/completar-perfil')
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--background)' }}>

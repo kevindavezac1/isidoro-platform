@@ -29,7 +29,8 @@
 | Módulo | Responsable | Estado | Notas |
 |---|---|---|---|
 | Login email/password + Google OAuth | Fran | ✅ Completado | Redirect por rol. Ruta `/auth/callback` para OAuth. Validado con usuario real (Francisco Bonfanti) |
-| Registro email/password + Google OAuth | Fran | ✅ Completado | `full_name`, `dni`, `phone`, `city` en `options.data` (email/password). Maneja email confirm + auto-login. Ciudad con combobox+autocompletado (DEC-019). Google OAuth no pide dni/phone/city — ver Bloqueos activos. |
+| Registro email/password + Google OAuth | Fran | ✅ Completado | `full_name`, `dni`, `phone`, `city` en `options.data` (email/password). Maneja email confirm + auto-login. Ciudad con combobox+autocompletado (DEC-019). |
+| Gate `/completar-perfil` (dni/phone/city faltante) | Fran | ✅ Completado | `(cliente)/layout.tsx` redirige si falta algún dato; cubre login email/password, Google OAuth y navegación directa. `update()` sobre RLS existente (DEC-020). |
 
 ### Semana 2 — Carta digital + gestión de productos
 
@@ -75,7 +76,8 @@
 ---
 
 ## Bloqueos activos
-- ⚠️ **Kevin:** el trigger `handle_new_user` solo lee `full_name` de `raw_user_meta_data`. `RegisterForm.tsx` ya manda `dni`, `phone` y `city` en el signup, pero esos datos se pierden porque el trigger no los captura. Actualizar `supabase/migrations/20260615000001_handle_new_user.sql` (o migración nueva) para leer e insertar también esos 3 campos en `profiles`. Ver DEC-019.
+_Ninguno bloqueante. El gate `/completar-perfil` (DEC-020) cubre el caso de abajo — no bloquea el registro, solo agrega un paso evitable._
+- ⚠️ **Kevin (no bloqueante):** el trigger `handle_new_user` solo lee `full_name` de `raw_user_meta_data`. `RegisterForm.tsx` ya manda `dni`, `phone` y `city` en el signup, pero esos datos se pierden porque el trigger no los captura — el usuario los reingresa una vez en `/completar-perfil`. Actualizar `supabase/migrations/20260615000001_handle_new_user.sql` (o migración nueva) para leer e insertar también esos 3 campos en `profiles` y evitar el paso duplicado. Ver DEC-019/DEC-020.
 
 ## Integración pendiente (Fran reemplaza mocks por datos reales)
 - ~~Carta pública → endpoints productos, categorías, time_offers, promotions~~ ✅ integrada
