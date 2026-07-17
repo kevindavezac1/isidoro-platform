@@ -20,18 +20,18 @@
 
 ## CLIENTE
 
-### 1. Registro (email/password)
+### 1. Registro (email/password) — ✅ Verificado OK 17 jul 2026
 
-1. [ ] Ir a `/register` sin sesión iniciada.
-2. [ ] Dejar todos los campos vacíos y tocar "Crear cuenta" → **esperado:** el navegador bloquea el submit por los `required` HTML (nombre, DNI, teléfono, ciudad, email, contraseña, repetir contraseña).
-3. [ ] Cargar un DNI con letras o menos de 7 dígitos (ej: `123`) → **esperado:** error inline "El DNI debe tener 7 u 8 dígitos, sin puntos", no se envía el formulario.
-4. [ ] En el campo Ciudad, escribir "san" → **esperado:** aparece una lista de sugerencias filtradas (ej: San José del Rincón, San Justo, San Jorge, etc.), navegable con flechas ↑/↓ y Enter, o clickeable con mouse.
-5. [ ] Escribir una ciudad que **no** está en la lista (ej: "Pueblo Inventado") → **esperado:** no bloquea el submit — el combobox acepta texto libre.
-6. [ ] Completar todos los campos correctamente (DNI de 8 dígitos, teléfono, ciudad, email nuevo, contraseña ≥ 6 caracteres, repetir contraseña igual) y enviar.
-7. [ ] Poner contraseñas distintas en "Contraseña" y "Repetir contraseña" → **esperado:** error "Las contraseñas no coinciden", no se envía.
-8. [ ] Registrarse con un email ya usado por otra cuenta → **esperado:** "Ya existe una cuenta con ese email".
-9. [ ] Completar el registro con datos válidos y nuevos → **esperado:** según config de Supabase, o bien auto-login + redirect, o pantalla "Revisá tu email" con el email mostrado.
-10. [ ] **Caso a verificar (gap conocido):** el trigger `handle_new_user` en la DB todavía no lee `dni`/`phone`/`city` (ver DEC-019/DEC-020 en `DECISIONS.md`) — después de confirmar el email y loguearse por primera vez, **esperado actual:** el sistema redirige a `/completar-perfil` en vez de entrar directo a `/perfil`, porque esos 3 campos quedaron `null` a pesar de haberlos cargado en el registro. Confirmar que este es efectivamente el comportamiento (y no un crash).
+1. [x] Ir a `/register` sin sesión iniciada.
+2. [x] Dejar todos los campos vacíos y tocar "Crear cuenta" → **esperado:** el navegador bloquea el submit por los `required` HTML (nombre, DNI, teléfono, ciudad, email, contraseña, repetir contraseña).
+3. [x] Cargar un DNI con letras o menos de 7 dígitos (ej: `123`) → **esperado:** error inline "El DNI debe tener 7 u 8 dígitos, sin puntos", no se envía el formulario.
+4. [x] En el campo Ciudad, escribir "san" → **esperado:** aparece una lista de sugerencias filtradas (ej: San José del Rincón, San Justo, San Jorge, etc.), navegable con flechas ↑/↓ y Enter, o clickeable con mouse.
+5. [x] Escribir una ciudad que **no** está en la lista (ej: "Pueblo Inventado") → **esperado:** no bloquea el submit — el combobox acepta texto libre.
+6. [x] Completar todos los campos correctamente (DNI de 8 dígitos, teléfono, ciudad, email nuevo, contraseña ≥ 6 caracteres, repetir contraseña igual) y enviar.
+7. [x] Poner contraseñas distintas en "Contraseña" y "Repetir contraseña" → **esperado:** error "Las contraseñas no coinciden", no se envía.
+8. [x] Registrarse con un email ya usado por otra cuenta → **esperado:** "Ya existe una cuenta con ese email".
+9. [x] Completar el registro con datos válidos y nuevos → **esperado:** según config de Supabase, o bien auto-login + redirect, o pantalla "Revisá tu email" con el email mostrado.
+10. [x] **Caso a verificar (gap conocido):** el trigger `handle_new_user` en la DB todavía no lee `dni`/`phone`/`city` (ver DEC-019/DEC-020 en `DECISIONS.md`) — después de confirmar el email y loguearse por primera vez, **esperado actual:** el sistema redirige a `/completar-perfil` en vez de entrar directo a `/perfil`, porque esos 3 campos quedaron `null` a pesar de haberlos cargado en el registro. Confirmar que este es efectivamente el comportamiento (y no un crash).
 
 ### 2. Login (email/password + Google OAuth)
 
@@ -53,6 +53,8 @@
 7. [ ] Probar el botón "Cerrar sesión" dentro de `/completar-perfil` → **esperado:** cierra sesión y vuelve a `/login`.
 
 ### 4. Carta pública (`/carta`)
+
+> 🔴 **BLOQUEADO 17 jul 2026 — ver DEC-023 en `DECISIONS.md`.** `categories`, `products` y `rewards` devuelven `permission denied for function current_user_role` para el rol `anon` (confirmado contra la API REST de Supabase directamente, no es un bug de frontend). `/carta` no muestra productos ni categorías para ningún visitante sin sesión. Pausado hasta que Kevin resuelva el RLS/grants — no tiene sentido seguir tildando ítems de este flujo (ni del Flujo 5, que depende de `rewards`) hasta entonces.
 
 1. [ ] Entrar a `/carta` sin sesión iniciada → **esperado:** carga sin pedir login (es pública); el ícono de usuario en el header lleva a `/login`.
 2. [ ] Entrar a `/carta` con sesión de cliente iniciada → **esperado:** el ícono de usuario en el header lleva a `/perfil`.

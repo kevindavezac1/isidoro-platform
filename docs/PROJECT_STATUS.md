@@ -1,10 +1,10 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 16 de julio de 2026 — Fran (2 bugs bloqueantes del QA corregidos: ofertas que cruzan medianoche + error de adjustPoints)
+**Última actualización:** 17 de julio de 2026 — Fran (🔴 bloqueante crítico encontrado en QA: categories/products/rewards rotas para usuarios anónimos)
 **Estado general:** EN CURSO — Semana 4 (backend completo, frontend avanzado)
 **Semana actual:** 4 de 4
-**Riesgo de plazo:** Bajo
+**Riesgo de plazo:** ⚠️ Medio — bloqueante crítico de backend pausó el QA (ver Bloqueos activos)
 
 ---
 
@@ -70,13 +70,13 @@
 | UI división de cuenta | Fran | ✅ Completado | `/caja/division` (tercer tab en CajaTabs). Búsqueda de clientes client-side vía Server Action (sin reload), monto individual por cliente con preview de puntos, chequeo cruzado opcional de total de mesa, resultado inline por cliente. Integrado con Edge Fn `split-consumption` real (no mock). |
 | Dashboard de estadísticas | Fran | ✅ Completado | Integrado con Edge Fn `reports` real (no mock): KPIs, gráfico de consumos por día, top clientes, top recompensas. |
 | Panel admin: búsqueda y gestión de clientes | Fran | ✅ Completado | Buscador por nombre/email (debounce URL), tabla con puntos, detalle con historial de consumos + form ajuste manual de puntos. |
-| QA completo de todos los flujos | Kevin + Fran | ⬜ Pendiente | Checklist completo en `docs/QA_CHECKLIST.md` (14 flujos). De los 10 gaps detectados por revisión de código, los 2 bloqueantes ya están corregidos (DEC-022): ofertas por horario que cruzan medianoche, y `adjustPoints` sin manejo de errores. Los otros 3 (soft-delete sin filtrar, buscador sin email, sin selector de fechas en estadísticas) quedan documentados como no bloqueantes. Falta ejecutar el checklist completo en vivo. |
+| QA completo de todos los flujos | Kevin + Fran | 🔴 Bloqueado | Ejecución en curso vía `docs/QA_CHECKLIST.md` (14 flujos). Flujos 1-3 (registro, login, completar perfil) ✅ verificados OK. **Flujo 4 (Carta pública) reveló un bloqueante crítico de backend — ver DEC-023** — QA pausado hasta que Kevin lo resuelva, porque probablemente afecta también el Flujo 5 (canje, depende de `rewards`) y partes de Admin. |
 | Deploy a producción | Kevin + Fran | ⬜ Pendiente | — |
 
 ---
 
 ## Bloqueos activos
-_Ninguno bloqueante. El gate `/completar-perfil` (DEC-020) cubre el caso de abajo — no bloquea el registro, solo agrega un paso evitable._
+- 🔴 **BLOQUEANTE CRÍTICO — Kevin, urgente:** `categories`, `products` y `rewards` devuelven `permission denied for function current_user_role` para el rol `anon` — confirmado consultando la API REST de Supabase directamente con la `anon key`, sin pasar por el frontend. Esto rompe **`/carta` (la carta pública) para todos los visitantes sin sesión** — no muestra ni un producto ni una categoría — y también la lista de recompensas en `/perfil`. `settings`, `promotions` y `time_offers` funcionan bien. Causa técnica, pista sobre el origen, y pasos a seguir documentados en **DEC-023** (`DECISIONS.md`). Pausa el QA en los Flujos 4 y 5 de `docs/QA_CHECKLIST.md` hasta que se resuelva. No lo puede resolver Fran — es RLS/grants, dominio de Kevin.
 - ⚠️ **Kevin (no bloqueante):** el trigger `handle_new_user` solo lee `full_name` de `raw_user_meta_data`. `RegisterForm.tsx` ya manda `dni`, `phone` y `city` en el signup, pero esos datos se pierden porque el trigger no los captura — el usuario los reingresa una vez en `/completar-perfil`. Actualizar `supabase/migrations/20260615000001_handle_new_user.sql` (o migración nueva) para leer e insertar también esos 3 campos en `profiles` y evitar el paso duplicado. Ver DEC-019/DEC-020.
 
 ## Integración pendiente (Fran reemplaza mocks por datos reales)
