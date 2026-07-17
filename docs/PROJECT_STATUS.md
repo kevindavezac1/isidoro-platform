@@ -1,7 +1,7 @@
 # PROJECT_STATUS.md — Plataforma Isidoro
 > Actualizar al iniciar y cerrar cada jornada. El CTO Agent lee este archivo antes de responder cualquier pregunta.
 
-**Última actualización:** 17 de julio de 2026 — Fran (🔴 bloqueante crítico encontrado en QA: categories/products/rewards rotas para usuarios anónimos)
+**Última actualización:** 17 de julio de 2026 — Fran (fix: faltaba color-scheme: dark, el navegador forzaba modo oscuro genérico sobre el theme real — ver DEC-024)
 **Estado general:** EN CURSO — Semana 4 (backend completo, frontend avanzado)
 **Semana actual:** 4 de 4
 **Riesgo de plazo:** ⚠️ Medio — bloqueante crítico de backend pausó el QA (ver Bloqueos activos)
