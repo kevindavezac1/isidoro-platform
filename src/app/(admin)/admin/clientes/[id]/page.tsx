@@ -32,10 +32,10 @@ export default async function ClienteDetallePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ success?: string }>
+  searchParams: Promise<{ success?: string; error?: string }>
 }) {
   const { id } = await params
-  const { success } = await searchParams
+  const { success, error } = await searchParams
 
   const supabase = await createClient()
 
@@ -196,7 +196,7 @@ export default async function ClienteDetallePage({
           <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
             Usar para correcciones de caja, cortesías o reversiones. Queda registrado con nota.
           </p>
-          <PointsAdjustForm action={adjustPoints.bind(null, id)} />
+          <PointsAdjustForm action={adjustPoints.bind(null, id)} errorCode={error} />
         </section>
       </div>
     </div>

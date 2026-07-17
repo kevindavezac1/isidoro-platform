@@ -2,19 +2,44 @@
 
 import { useState } from 'react'
 
-interface PointsAdjustFormProps {
-  action: (formData: FormData) => Promise<void>
+const ERROR_MESSAGES: Record<string, string> = {
+  insufficient_points: 'Saldo insuficiente para aplicar este descuento',
+  invalid_points: 'El valor de puntos ingresado no es válido',
+  missing_client_id: 'Cliente inválido',
+  client_not_found: 'Cliente no encontrado',
+  insufficient_role: 'No tenés permiso para hacer este ajuste',
+  unauthorized: 'No tenés permiso para hacer este ajuste',
+  unknown: 'Error inesperado — intentá de nuevo',
 }
 
-export function PointsAdjustForm({ action }: PointsAdjustFormProps) {
+interface PointsAdjustFormProps {
+  action: (formData: FormData) => Promise<void>
+  errorCode?: string
+}
+
+export function PointsAdjustForm({ action, errorCode }: PointsAdjustFormProps) {
   const [points, setPoints] = useState('')
 
   const parsed = points === '' ? 0 : parseInt(points, 10)
   const isPositive = parsed > 0
   const isNegative = parsed < 0
+  const errorMsg = errorCode ? (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.unknown) : null
 
   return (
     <form action={action} className="space-y-4">
+      {errorMsg && (
+        <div
+          className="rounded-xl px-4 py-3 text-sm"
+          style={{
+            background: 'rgba(239,68,68,0.10)',
+            border: '1px solid rgba(239,68,68,0.30)',
+            color: '#f87171',
+          }}
+        >
+          {errorMsg}
+        </div>
+      )}
+
       <div>
         <label
           htmlFor="points"

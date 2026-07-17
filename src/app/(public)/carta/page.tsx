@@ -36,7 +36,12 @@ function isTimeOfferActive(
     minute: '2-digit',
     second: '2-digit',
   })
-  return nowInTZ >= offer.start_time && nowInTZ <= offer.end_time
+  const { start_time, end_time } = offer
+  if (start_time <= end_time) {
+    return nowInTZ >= start_time && nowInTZ <= end_time
+  }
+  // Oferta que cruza medianoche (ej. 22:00–02:00): activa fuera del "hueco" entre end y start
+  return nowInTZ >= start_time || nowInTZ <= end_time
 }
 
 export default async function CartaPage() {

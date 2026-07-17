@@ -12,7 +12,16 @@ export async function adjustPoints(clientId: string, formData: FormData) {
     body: { client_id: clientId, points, notes },
   })
 
-  if (error) throw new Error(error.message)
+  if (error) {
+    let errorCode = 'unknown'
+    if ('context' in error && error.context instanceof Response) {
+      try {
+        const body = await (error.context as Response).json()
+        errorCode = body?.code ?? 'unknown'
+      } catch { /* ignore */ }
+    }
+    redirect(`/admin/clientes/${clientId}?error=${encodeURIComponent(errorCode)}`)
+  }
 
   redirect(`/admin/clientes/${clientId}?success=adjusted`)
 }
