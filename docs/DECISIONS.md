@@ -242,6 +242,23 @@
 
 ---
 
+### DEC-025 — Fix: listas de admin no filtraban `deleted_at` (gap #1 del QA_CHECKLIST, elevado de "no bloqueante" a corregido)
+- **Hallazgo confirmado en vivo:** durante el QA de Admin (Flujo 9), se eliminó un producto — el banner mostró "Eliminado correctamente" pero el producto siguió apareciendo en `/admin/productos`. Se verificó que `deleteProduct` sí hace el soft-delete correctamente (`update({ deleted_at: now() })`); el problema era exclusivamente que la query de la lista no excluía filas con `deleted_at` no nulo. Exactamente el gap #1 que ya estaba documentado en `QA_CHECKLIST.md` desde la revisión de código previa al QA, pero catalogado como "no bloqueante" — al aparecer en la prueba real se decidió corregirlo ahora en vez de dejarlo para después.
+- **Alcance del fix — 4 archivos, mismo patrón (`.is('deleted_at', null)`):**
+  1. `src/app/(admin)/admin/productos/page.tsx` — lista de productos.
+  2. `src/app/(admin)/admin/categorias/page.tsx` — lista de categorías, y también la query de conteo de productos por categoría (antes contaba productos eliminados en el número mostrado, ahora es consistente con lo que realmente se ve en `/admin/productos`).
+  3. `src/app/(admin)/admin/productos/nuevo/page.tsx` — dropdown de categoría al crear un producto (antes permitía asignar un producto nuevo a una categoría ya eliminada).
+  4. `src/app/(admin)/admin/productos/[id]/editar/page.tsx` — mismo dropdown al editar.
+- **No incluido en este fix (deliberado, fuera de alcance):**
+  - Los fetches de una fila puntual por `id` (`admin/productos/[id]/editar`'s propio producto, `admin/categorias/[id]/editar`'s propia categoría) no se tocaron — son lookups directos por id, no listados, y no es el bug reportado.
+  - La carta pública (`/carta`) sigue sin hacer join-filtro sobre `deleted_at` de la categoría padre de un producto — un producto cuya categoría fue eliminada podría seguir agrupado bajo esa categoría "fantasma" ahí. Esto es un caso distinto (bloqueado además por DEC-023 para poder verificarlo en vivo) — no se tocó en este fix.
+  - Si la categoría actual de un producto fue eliminada y se entra a editar ese producto puntual, el dropdown ya no incluye esa categoría entre las opciones (porque ahora filtra `deleted_at`) — el `<select>` quedaría sin ninguna opción coincidente con el valor actual. No se agregó lógica para incluir la categoría actual como opción deshabilitada; es una mejora de UX a futuro si se vuelve un problema real, no bloqueante ahora mismo.
+- **Verificado:** `tsc`/`eslint` limpios, `npm run build` compila las 25 rutas.
+- **Tomada por:** Fran (Frontend Agent) — aprobado por CTO Agent (pedido directo durante ejecución de QA)
+- **Fecha:** 17 de julio de 2026
+
+---
+
 ## System Prompts de los agentes
 
 ### CTO Agent — System Prompt
