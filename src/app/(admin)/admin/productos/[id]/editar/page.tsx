@@ -20,6 +20,7 @@ export default async function EditarProductoPage({
     supabase
       .from('categories')
       .select('id, name')
+      .is('deleted_at', null)
       .order('sort_order', { ascending: true }),
   ])
 

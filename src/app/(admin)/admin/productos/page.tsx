@@ -19,6 +19,7 @@ export default async function ProductosPage({
   const { data: products } = await supabase
     .from('products')
     .select('id, name, description, price, sort_order, is_available, category_id, categories(name)')
+    .is('deleted_at', null)
     .order('sort_order', { ascending: true })
 
   const productList = products ?? []

@@ -17,8 +17,8 @@ export default async function CategoriasPage({
   const supabase = await createClient()
 
   const [{ data: categories }, { data: products }] = await Promise.all([
-    supabase.from('categories').select('*').order('sort_order', { ascending: true }),
-    supabase.from('products').select('category_id'),
+    supabase.from('categories').select('*').is('deleted_at', null).order('sort_order', { ascending: true }),
+    supabase.from('products').select('category_id').is('deleted_at', null),
   ])
 
   const categoryList = categories ?? []

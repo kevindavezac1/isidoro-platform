@@ -137,7 +137,7 @@
 4. [ ] Cargar un `sort_order` vacío → **esperado:** se guarda como `0` silenciosamente (no debería dar error).
 5. [ ] Editar un producto existente, cambiar el precio y desmarcar "Disponible" → **esperado:** banner "Actualizado correctamente.", y el producto deja de aparecer en `/carta` (ver sección 4, punto 6).
 6. [ ] Eliminar un producto (botón "Eliminar" → confirma con "Sí, eliminar") → **esperado:** banner "Eliminado correctamente."
-7. [ ] **Caso a verificar (gap conocido):** después de eliminar un producto, revisar si sigue apareciendo en la lista de `/admin/productos` — el query actual no filtra `deleted_at`, así que es esperable (aunque no deseable) que **siga listado**. Confirmar y documentar si es así.
+7. [x] **Fix aplicado 17 jul 2026 — verificar:** eliminar un producto ya no debe aparecer en `/admin/productos` — `deleteProduct` setea `deleted_at` correctamente (soft-delete real), y ahora el query de la lista filtra `is('deleted_at', null)`. Detectado durante QA en vivo: el banner decía "Eliminado correctamente" pero el producto seguía listado — confirmado que era exactamente este gap. Ver DEC-025.
 8. [ ] Cargar una URL en `image_url` y guardar → luego revisar `/carta`: **esperado según código:** la imagen **no se muestra** en la card pública (siempre placeholder) — no es un bug de esta sesión, es una funcionalidad no implementada (falta Supabase Storage). No reportar como bug nuevo.
 
 ### 10. Categorías (`/admin/categorias`)
@@ -146,7 +146,7 @@
 2. [ ] Crear una categoría nueva (nombre + orden) → banner "Creado correctamente."
 3. [ ] Verificar que el conteo de "Productos" de una categoría cuenta **todos** los productos asociados, estén disponibles o no (incluye no-disponibles y potencialmente eliminados).
 4. [ ] Editar el nombre de una categoría con productos asociados → confirmar que el nombre se actualiza también en `/carta`.
-5. [ ] Eliminar una categoría que **tiene productos asociados** → **esperado:** no hay ningún bloqueo ni advertencia, se elimina igual. **Caso a verificar:** después de esto, revisar `/carta` — ¿qué pasa con los productos que quedaron apuntando a esa categoría eliminada? Documentar el comportamiento real (probablemente sigan apareciendo agrupados bajo esa categoría "fantasma", porque ni el query de categorías ni el de productos filtran por `deleted_at` de la categoría padre).
+5. [ ] Eliminar una categoría que **tiene productos asociados** → **esperado:** no hay ningún bloqueo ni advertencia, se elimina igual. La categoría ya no debe listarse en `/admin/categorias` (fix aplicado, ver DEC-025) ni en el dropdown de categoría al crear/editar un producto. **Caso a verificar (esto sigue abierto, no lo resuelve el fix de listas):** los productos que quedaron con `category_id` apuntando a esa categoría eliminada — ¿qué pasa con ellos en `/carta`? El query de productos de la carta pública no hace join-filtro sobre `deleted_at` de la categoría padre, así que es esperable que sigan apareciendo agrupados bajo el nombre de esa categoría "fantasma" ahí (distinto del admin, que ya no la muestra). Bloqueado por DEC-023 para verificar en vivo.
 
 ### 11. Promociones (`/admin/promociones`)
 
@@ -202,7 +202,7 @@
 
 Estos 10 puntos ya están referenciados dentro de sus secciones correspondientes arriba, pero se listan acá también como resumen para decidir con el CTO Agent cuáles corregir antes de producción y cuáles documentar como comportamiento aceptado:
 
-1. Productos/categorías eliminados (`deleted_at`) probablemente siguen listados en el admin — el query no filtra.
+1. ~~Productos/categorías eliminados (`deleted_at`) probablemente siguen listados en el admin — el query no filtra.~~ **✅ Corregido 17 jul 2026** — confirmado durante el QA en vivo (banner "Eliminado correctamente" pero el producto seguía en la lista). Se agregó `.is('deleted_at', null)` a la lista de productos, la lista de categorías (+ su conteo de productos por categoría), y los dropdowns de categoría en crear/editar producto. Ver DEC-025.
 2. Promociones/ofertas usan `is_active=false` como "delete", no `deleted_at` — comportamiento distinto al de productos/categorías, posible inconsistencia de UX a nivelar.
 3. ~~`adjustPoints` no parsea el código de error del Edge Function~~ **✅ Corregido 16 jul 2026** — ahora parsea `error.context` igual que `iniciarCanje`/`confirmarCanje` y muestra un banner con mensaje según el código (`insufficient_points`, `invalid_points`, `client_not_found`, etc.) en vez de crashear. Ver `PointsAdjustForm.tsx` y `admin-clients.ts`.
 4. ~~Ofertas por horario que cruzan medianoche nunca se activan en la carta pública~~ **✅ Corregido 16 jul 2026** — `isTimeOfferActive` en `carta/page.tsx` ahora detecta `start_time > end_time` y evalúa la unión de los dos tramos en vez de la intersección. Verificado con 8 casos borde (normal dentro/fuera, medianoche dentro/fuera, límites inclusivos).
